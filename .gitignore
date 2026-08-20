@@ -52,5 +52,8 @@ assets/*.png
 .temp/
 **/supabase/.temp/
 
-# Evidencia de corridas de test puntuales (logs con base64 embebido, pesados)
-tests/trademark-restriction/output/
+# Datos internos de testeo / documentación de proceso / gestión de cambios —
+# no hace falta para que alguien clone y levante el proyecto (ver SETUP.md).
+/tests/
+/docs/
+/openspec/

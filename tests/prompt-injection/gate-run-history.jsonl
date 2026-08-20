@@ -1,2 +1,0 @@
-{"runTimestamp":"2026-08-19T00:29:25.770Z","sha256":"4c3fad5d08f0969fc2b892f45b9f235c44cfe41e2a419518b89bfa080ffc1dc7","maliciousCount":4,"blockedHeuristicCount":4,"blockedClassifierCount":0,"slippedThroughCount":0,"fullFailuresCount":0,"controlFpRate":1}
-{"runTimestamp":"2026-08-19T00:30:27.879Z","sha256":"4c3fad5d08f0969fc2b892f45b9f235c44cfe41e2a419518b89bfa080ffc1dc7","maliciousCount":4,"blockedHeuristicCount":4,"blockedClassifierCount":0,"slippedThroughCount":0,"fullFailuresCount":0,"controlFpRate":0}

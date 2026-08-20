@@ -1,0 +1,78 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3b67986b-7711-4aa7-86ef-e9797b485991",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Configuración: completar DEFAULT_ADMIN_CHAT_ID con el chat id numérico del admin\n// (n8n Settings → Error Workflow). Si queda vacío y no hay chat de usuario, no se envía nada.\nconst DEFAULT_ADMIN_CHAT_ID = $env.DEFAULT_ADMIN_CHAT_ID || '';\n\nconst items = $input.all();\nconst item = items.length > 0 ? items[0] : {};\n\nfunction findChatId(json) {\n  if (!json) return null;\n  if (json.id_chat) return json.id_chat;\n  if (json.node && json.node.data && Array.isArray(json.node.data)) {\n    for (const d of json.node.data) {\n      if (d && d.json && d.json.chat && d.json.chat.id) return d.json.chat.id;\n    }\n  }\n  return null;\n}\n\nlet chatId = findChatId(item.json);\nlet isAdmin = false;\n\nif (!chatId && DEFAULT_ADMIN_CHAT_ID) {\n  chatId = DEFAULT_ADMIN_CHAT_ID;\n  isAdmin = true;\n}\n\nif (!chatId) {\n  // Sin chat de usuario ni admin configurado: no enviar (queda en el execution log).\n  return [];\n}\n\nconst errorData = item.json || {};\nconst workflow = errorData.workflow || 'desconocido';\nconst lastNode = errorData.lastNodeExecuted || 'desconocido';\nconst execId = errorData.executionId || 'desconocido';\n\nconst text = isAdmin\n  ? '⚠️ Ocurrió un error en el workflow de Aura.\\n\\nWorkflow: ' + workflow + ' · Nodo: ' + lastNode + ' · Exec: ' + execId\n  : '⚠️ Ocurrió un error procesando tu solicitud. Volvé a intentar con /start.';\n\nreturn [{ json: { chatId, text } }];"
+      },
+      "id": "028cad3b-828b-4504-99a4-df3fb3b0a9af",
+      "name": "Extraer chat y preparar aviso",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "e9aac637-db96-4b6d-aa3a-a06a3ea5bc40",
+      "name": "Enviar aviso de error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        0
+      ],
+      "webhookId": "d923f7e7-ad55-453b-a060-919323f2d051",
+      "credentials": {
+        "telegramApi": {
+          "id": "bBArR5HmMY4lYgoZ",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extraer chat y preparar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer chat y preparar aviso": {
+      "main": [
+        [
+          {
+            "node": "Enviar aviso de error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "3512b0107d4aaa2e40daa0fcf073cee43a0cc2bbc9a1bbeea58b017296f9962b"
+  }
+}

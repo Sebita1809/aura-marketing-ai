@@ -1,0 +1,2 @@
+{"runTimestamp":"2026-08-17T17:05:16.724Z","sha256":"c3650e9de84243b8bfcc69ff5c58ba3a0bc7457f12185aee0afcca9c59678652","pdfDetectionRate":0.9230769230769231,"pdfDetectedCount":12,"pdfMaliciousCount":13,"cumplidasCount":6,"combinedFpRate":0,"acceptancePasses":false}
+{"runTimestamp":"2026-08-17T17:15:15.890Z","sha256":"dd5e89a2c5936d7da6084a52784818d088bdbc11c70165c2f9792f788b6fff7e","pdfDetectionRate":0.9230769230769231,"pdfDetectedCount":12,"pdfMaliciousCount":13,"cumplidasCount":8,"combinedFpRate":0,"acceptancePasses":false}

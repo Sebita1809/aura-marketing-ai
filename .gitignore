@@ -1,0 +1,56 @@
+# Secrets — nunca commitear
+.env
+.env.local
+.env.*.local
+!*.env.example
+
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Herramientas de IA (config/estado local, no es parte del proyecto)
+.claude/
+.opencode/
+
+# Backups locales de codigo.json (historial operativo, no para el repo)
+codigo.json.bak-*
+
+# Campaña de testeo con datos reales del negocio (menú, precios) — no pública
+tests/campaign-*/
+
+# Respaldo viejo del frontend
+aura-frontend-backup/
+
+# Material propio del negocio / entregables de tesis, no parte del código
+CARTA DIGITAL MAYO 4.pdf
+Devolucion_TFC_*.md
+tfc_n8n_*.docx
+memory_dummy.txt
+
+# Fotos/imágenes de prueba subidas durante debugging (dejamos solo assets/watermark/)
+assets/*.jpg
+assets/*.jpeg
+assets/*.png
+!assets/watermark/
+
+# Estado local del CLI de Supabase
+.temp/
+**/supabase/.temp/
+
+# Evidencia de corridas de test puntuales (logs con base64 embebido, pesados)
+tests/trademark-restriction/output/

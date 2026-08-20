@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface-tint: #ddb7ff;
+  --color-on-secondary: #002e6a;
+  --color-secondary: #adc6ff;
+  --color-on-secondary-container: #e6ecff;
+  --color-surface: #131313;
+  --color-on-primary: #490080;
+  --color-inverse-primary: #842bd2;
+  --color-tertiary: #c5c7c8;
+  --color-inverse-surface: #e5e2e1;
+  --color-surface-container: #201f1f;
+  --color-surface-variant: #353534;
+  --color-primary-container: #b76dff;
+  --color-on-error: #690005;
+  --color-surface-container-lowest: #0e0e0e;
+  --color-surface-container-high: #2a2a2a;
+  --color-error-container: #93000a;
+  --color-tertiary-container: #8f9192;
+  --color-on-surface: #e5e2e1;
+  --color-surface-container-low: #1c1b1c;
+  --color-secondary-container: #0566d9;
+  --color-outline: #988d9f;
+  --color-on-surface-variant: #cfc2d6;
+  --color-error: #ffb4ab;
+  --color-background: #131313;
+  --color-on-error-container: #ffdad6;
+  --color-on-background: #e5e2e1;
+  --color-primary: #ddb7ff;
+  --color-surface-bright: #3a3939;
+  --color-surface-container-highest: #353534;
+  --color-inverse-on-surface: #313030;
+  --color-surface-dim: #131313;
+  --color-outline-variant: #4d4354;
+  --color-on-primary-container: #400071;
+  --font-body-md: "Inter", sans-serif;
+  --font-label-sm: "Geist", sans-serif;
+  --font-headline-lg: "Hanken Grotesk", sans-serif;
+  --font-display-lg: "Hanken Grotesk", sans-serif;
+
+  /* Font sizes matching Stitch design system */
+  --text-display-lg: 48px;
+  --text-display-lg--font-weight: 700;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-headline-lg: 32px;
+  --text-headline-lg--font-weight: 600;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--letter-spacing: -0.01em;
+  --text-headline-lg-mobile: 24px;
+  --text-headline-lg-mobile--font-weight: 600;
+  --text-headline-lg-mobile--line-height: 32px;
+  --text-body-md: 16px;
+  --text-body-md--font-weight: 400;
+  --text-body-md--line-height: 24px;
+  --text-label-sm: 12px;
+  --text-label-sm--font-weight: 500;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--letter-spacing: 0.05em;
+
+  /* Spacing tokens matching Stitch design system */
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 40px;
+  --spacing-container-max: 1440px;
+  --spacing-base: 8px;
+  --spacing-gutter: 24px;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  background-color: #0A0A0A;
+  color: #e5e2e1;
+  overflow-x: hidden;
+}
+
+.glass-card {
+  background: rgba(18, 18, 18, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(221, 183, 255, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px -10px rgba(132, 43, 210, 0.2);
+}
+
+/* Variante más opaca de .glass-card para paneles flotantes (popovers,
+   dropdowns) que se superponen a contenido dinámico -- el 0.7 de opacidad
+   de .glass-card se pensó para tarjetas sobre el fondo estático de la
+   página, no para paneles que tapan texto/listas en movimiento debajo. */
+.glass-card-solid {
+  background: rgba(16, 15, 17, 0.97);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Scrollbar temático (hilos de chat de soporte) -- fino y con el color de
+   marca en vez de la barra nativa del sistema operativo. */
+.themed-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(221, 183, 255, 0.35) transparent;
+}
+.themed-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.themed-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.themed-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(221, 183, 255, 0.35);
+  border-radius: 999px;
+}
+.themed-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(221, 183, 255, 0.55);
+}
+
+.neon-glow-primary {
+  box-shadow: 0 0 15px rgba(221, 183, 255, 0.2);
+}
+
+.ai-pulse {
+  animation: pulse 3s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.1); }
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}

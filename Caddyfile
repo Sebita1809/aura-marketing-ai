@@ -1,0 +1,20 @@
+:8080 {
+	# ─── Frontend (aura-frontend: Vite) bajo /app/ ─────────────────────
+	@frontend path /app* /login* /admin* /oauth* /landing* /assets* /src* /@vite/* /@react-refresh /@id/* /node_modules/* /favicon* /logoAura*
+	handle @frontend {
+		reverse_proxy localhost:5173
+	}
+
+	# ─── n8n (bajo /n8n/) ───────────────────────────────────────────────
+	@n8n path /n8n*
+	handle @n8n {
+		uri strip_prefix /n8n
+		reverse_proxy localhost:5678
+	}
+
+	# ─── Postiz (raíz + todo lo demas) ──────────────────────────────────
+	handle {
+		reverse_proxy localhost:4007
+		header >Set-Cookie "Domain=.ngrok-free.dev; " ""
+	}
+}

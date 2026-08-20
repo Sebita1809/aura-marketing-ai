@@ -1,0 +1,13 @@
+%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj
+4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
+5 0 obj << /Length 372 >> stream
+BT /F1 16 Tf 54 740 Td (CATALOGO CON SISTEMA DE PUNTOS) Tj ET
+BT /F1 11 Tf 54 710 Td (Modelo Clasico de hamburguesa - $1.500 - Sumá puntos con nuestro sistema de fidelizacion) Tj ET
+BT /F1 11 Tf 54 688 Td (Modelo Premium de hamburguesa - $2.200 - Doble puntos este mes) Tj ET
+BT /F1 6 Tf 54 30 Td (Sistema de fidelizacion valido para clientes registrados en la app.) Tj ET
+endstream endobj
+trailer << /Root 1 0 R >>
+%%EOF

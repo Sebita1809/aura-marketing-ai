@@ -1,0 +1,336 @@
+services:
+
+  # ─────────────────────────────────────────────
+  # n8n + Redis
+  # ─────────────────────────────────────────────
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_PATH=/n8n/
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      # fs/child_process/os/path sumados para 'Watermark IA': el nodo Edit Image
+      # nativo de n8n inyecta siempre "-orient TopLeft" antes de cualquier
+      # operacion, y el subcomando "gm composite" (a diferencia de "gm convert")
+      # no reconoce ese flag -> falla siempre con "Stream yields empty buffer".
+      # Se reemplazo 'composite' por un Code node que invoca "gm convert ...
+      # -page +X+Y logo.png -flatten -" directamente (mismo binario /usr/bin/gm
+      # que ya usa el nodo nativo), verificado que produce salida identica byte
+      # a byte a un "gm composite" correcto. child_process para invocar gm,
+      # fs/os/path para el archivo temporal del logo.
+      - NODE_FUNCTION_ALLOW_BUILTIN=crypto,fs,child_process,os,path
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-https://inexpressibly-remigial-teddy.ngrok-free.dev/n8n/}
+      - GENERIC_TIMEZONE=America/Argentina/Buenos_Aires
+      - N8N_PROXY_HOPS=1
+      - DEFAULT_ADMIN_CHAT_ID=${DEFAULT_ADMIN_CHAT_ID:-}
+      # Usado por los nodos HTTP Request que llaman a la Telegram Bot API
+      # directamente (sendMessage/editMessageText del selector de plataformas).
+      # Se usa en vez del nodo Telegram nativo porque n8n normaliza/resetea el
+      # fixedCollection del inline keyboard al abrir el workflow en el editor,
+      # vaciando los botones. $credentials no es accesible desde expresiones de
+      # HTTP Request, por eso el token viaja como env var (mismo bot que la
+      # credential "Telegram account" / bBArR5HmMY4lYgoZ), nunca en texto plano
+      # en el JSON del workflow. Setear el valor real en .env (no versionado).
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      # n8n bloquea $env en expresiones por defecto ("access to env vars denied").
+      # Necesario para que TELEGRAM_BOT_TOKEN (arriba) sea legible desde la URL
+      # de los nodos HTTP Request del selector de plataformas. Unico operador con
+      # acceso al editor de n8n es el dueño del proyecto, asi que ampliar que
+      # variables son legibles por expresion no expone nada a los usuarios del
+      # bot por Telegram, solo a quien ya tiene acceso total de edicion.
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      # El task runner de JS venia quedando sin memoria tras muchas ejecuciones
+      # en la misma sesion larga ("Workflow did not finish, possible out-of-memory
+      # issue", visto repetidas veces en "Parsear fecha personalizada"). N8N_RUNNERS_
+      # MAX_OLD_SPACE_SIZE no llega a aplicarse al proceso del runner en modo
+      # "internal" (verificado: el runner arranca sin el flag --max-old-space-size
+      # pese a tener la variable seteada; es un problema conocido de n8n). NODE_OPTIONS
+      # si lo respeta Node.js directamente para cualquier proceso del contenedor,
+      # incluido el runner, sin depender de que n8n lo reenvie.
+      - N8N_RUNNERS_MAX_OLD_SPACE_SIZE=4096
+      - NODE_OPTIONS=--max-old-space-size=4096
+    volumes:
+      - n8n_storage:/home/node/.n8n
+    networks:
+      - postiz-network
+    depends_on:
+      redis:
+        condition: service_started
+      clamav-rest:
+        condition: service_healthy
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - postiz-network
+
+  # ─────────────────────────────────────────────
+  # ClamAV (daemon + REST API integradas, "two in one") — escaneo antivirus de PDFs
+  # ─────────────────────────────────────────────
+  clamav-rest:
+    image: ajilaag/clamav-rest
+    container_name: clamav-rest
+    restart: unless-stopped
+    ports:
+      - "8082:9000"          # solo para debug/curl desde el host (REST interno en 9000)
+    environment:
+      MAX_SCAN_SIZE: 100M
+      MAX_FILE_SIZE: 25M     # PDFs > 25 MB no se escanean (el gate de n8n es 20 MB)
+      SIGNATURE_CHECKS: 2    # actualización de firmas 2x/día
+      TZ: America/Argentina/Buenos_Aires
+    volumes:
+      - clamav_db:/clamav/data   # firmas persisten ante recreación del contenedor
+    networks:
+      - postiz-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:9000/version"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 300s   # carga inicial de firmas al primer arranque
+
+  # ─────────────────────────────────────────────
+  # Postiz
+  # ─────────────────────────────────────────────
+  postiz:
+    image: ghcr.io/gitroomhq/postiz-app:latest
+    container_name: postiz
+    restart: always
+    environment:
+      MAIN_URL: 'https://inexpressibly-remigial-teddy.ngrok-free.dev'
+      FRONTEND_URL: 'https://inexpressibly-remigial-teddy.ngrok-free.dev'
+      NEXT_PUBLIC_BACKEND_URL: 'https://inexpressibly-remigial-teddy.ngrok-free.dev/api'
+      BACKEND_INTERNAL_URL: 'http://localhost:3000'
+      JWT_SECRET: '${POSTIZ_JWT_SECRET:-}'
+      DATABASE_URL: 'postgresql://postiz-user:${POSTIZ_DB_PASSWORD:-}@postiz-postgres:5432/postiz-db-local'
+      REDIS_URL: 'redis://postiz-redis:6379'
+      TEMPORAL_ADDRESS: 'temporal:7233'
+      IS_GENERAL: 'true'
+      DISABLE_REGISTRATION: 'false'
+      RUN_CRON: 'true'
+      STORAGE_PROVIDER: 'local'
+      UPLOAD_DIRECTORY: '/uploads'
+      NEXT_PUBLIC_UPLOAD_DIRECTORY: '/uploads'
+      # Meta / Facebook / Instagram
+      FACEBOOK_APP_ID: '1016361021042414'
+      FACEBOOK_APP_SECRET: '${META_APP_SECRET:-}'
+      THREADS_APP_ID: '1016361021042414'
+      THREADS_APP_SECRET: '${META_APP_SECRET:-}'
+      # Otros (completar cuando corresponda)
+      X_API_KEY: ''
+      X_API_SECRET: ''
+      LINKEDIN_CLIENT_ID: ''
+      LINKEDIN_CLIENT_SECRET: ''
+      TIKTOK_CLIENT_ID: ''
+      TIKTOK_CLIENT_SECRET: ''
+      YOUTUBE_CLIENT_ID: ''
+      YOUTUBE_CLIENT_SECRET: ''
+      REDDIT_CLIENT_ID: ''
+      REDDIT_CLIENT_SECRET: ''
+      DISCORD_CLIENT_ID: ''
+      DISCORD_CLIENT_SECRET: ''
+      DISCORD_BOT_TOKEN_ID: ''
+      SLACK_ID: ''
+      SLACK_SECRET: ''
+      SLACK_SIGNING_SECRET: ''
+      PINTEREST_CLIENT_ID: ''
+      PINTEREST_CLIENT_SECRET: ''
+      DRIBBBLE_CLIENT_ID: ''
+      DRIBBBLE_CLIENT_SECRET: ''
+      OPENAI_API_KEY: ''
+      NX_ADD_PLUGINS: 'false'
+      API_LIMIT: 30
+      STRIPE_PUBLISHABLE_KEY: ''
+      STRIPE_SECRET_KEY: ''
+      STRIPE_SIGNING_KEY: ''
+    volumes:
+      - postiz-config:/config/
+      - postiz-uploads:/uploads/
+      - ./docker/postiz-orchestrator-healthcheck.sh:/postiz-orchestrator-healthcheck.sh:ro
+    ports:
+      - "4007:5000"
+    networks:
+      - postiz-network
+      - temporal-network
+    healthcheck:
+      # Ademas de HTTP, verifica que el worker de Temporal (proceso "orchestrator")
+      # este realmente conectado, y lo auto-reinicia si queda colgado sin conexion
+      # tras un arranque en frio (ver docker/postiz-orchestrator-healthcheck.sh).
+      test: ["CMD", "sh", "/postiz-orchestrator-healthcheck.sh"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 150s
+    depends_on:
+      postiz-postgres:
+        condition: service_healthy
+      postiz-redis:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+
+  postiz-postgres:
+    image: postgres:17-alpine
+    container_name: postiz-postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTIZ_DB_PASSWORD:-}
+      POSTGRES_USER: postiz-user
+      POSTGRES_DB: postiz-db-local
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+    networks:
+      - postiz-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postiz-user -d postiz-db-local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  postiz-redis:
+    image: redis:7.2
+    container_name: postiz-redis
+    restart: always
+    volumes:
+      - postiz-redis-data:/data
+    networks:
+      - postiz-network
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # ─────────────────────────────────────────────
+  # Temporal (motor de scheduling de Postiz)
+  # ─────────────────────────────────────────────
+  temporal-elasticsearch:
+    container_name: temporal-elasticsearch
+    image: elasticsearch:7.17.27
+    restart: always
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=512mb
+      - cluster.routing.allocation.disk.watermark.high=256mb
+      - cluster.routing.allocation.disk.watermark.flood_stage=128mb
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+    networks:
+      - temporal-network
+    expose:
+      - 9200
+    volumes:
+      - temporal-elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS \"http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s\" || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  temporal-postgresql:
+    container_name: temporal-postgresql
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${TEMPORAL_DB_PASSWORD:-}
+      POSTGRES_USER: temporal
+    networks:
+      - temporal-network
+    expose:
+      - 5432
+    volumes:
+      - temporal-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  temporal:
+    container_name: temporal
+    image: temporalio/auto-setup:1.28.1
+    restart: always
+    ports:
+      - "7233:7233"
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=${TEMPORAL_DB_PASSWORD:-}
+      - POSTGRES_SEEDS=temporal-postgresql
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+      - ENABLE_ES=true
+      - ES_SEEDS=temporal-elasticsearch
+      - ES_VERSION=v7
+      - TEMPORAL_NAMESPACE=default
+    networks:
+      - temporal-network
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+    depends_on:
+      temporal-postgresql:
+        condition: service_healthy
+      temporal-elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "temporal", "operator", "cluster", "health", "--address", "temporal:7233"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  temporal-ui:
+    container_name: temporal-ui
+    image: temporalio/ui:2.34.0
+    restart: always
+    ports:
+      - "8081:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://127.0.0.1:3000
+    networks:
+      - temporal-network
+    depends_on:
+      temporal:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  n8n_storage:
+  redis_data:
+  postgres-volume:
+  postiz-redis-data:
+  postiz-config:
+  postiz-uploads:
+  temporal-postgres-data:
+  temporal-elasticsearch-data:
+  clamav_db:
+
+networks:
+  postiz-network:
+    driver: bridge
+  temporal-network:
+    driver: bridge
+    name: temporal-network

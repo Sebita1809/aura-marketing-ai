@@ -25,6 +25,26 @@ const NAME_KEYS = ['producto', 'nombre', 'nombre del producto', 'name', 'titulo'
 const PRICE_KEYS = ['precio', 'price'];
 const DESCRIPTION_KEYS = ['detalle', 'descripcion', 'descripción', 'description'];
 
+/**
+ * Filtra items de catálogo por texto libre para la searchbar del panel:
+ * busca en nombre, precio, detalle y cualquier campo "extra" (incluidas las
+ * claves libres que la IA haya inventado al extraer un producto de un
+ * PDF/imagen), case-insensitive. Query vacío/blank devuelve todos los items.
+ */
+export function filterProducts(items, query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return items;
+  return items.filter((item) => {
+    const { name, price, description, extra } = pickProductFields(item);
+    const haystack = [name, price, description, ...extra.map(([, value]) => value)]
+      .filter((value) => value !== null && value !== undefined)
+      .map((value) => (typeof value === 'object' ? JSON.stringify(value) : String(value)))
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+}
+
 function firstPresentKey(item, keys) {
   for (const key of keys) {
     if (item[key] !== undefined && item[key] !== null && item[key] !== '') return key;
@@ -52,5 +72,12 @@ export function pickProductFields(item) {
     price: priceKey ? item[priceKey] : null,
     description: descKey ? item[descKey] : null,
     extra,
+    // Clave real usada para cada campo (o null si el item no la trae). El
+    // panel de edición la necesita para escribir de vuelta en la MISMA
+    // clave del item (p. ej. "nombre del producto" en la rama PDF) en vez
+    // de siempre "producto" -- si no, quedaría una clave vieja duplicada.
+    nameKey,
+    priceKey,
+    descKey,
   };
 }

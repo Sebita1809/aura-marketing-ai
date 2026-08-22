@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import GlassCard from '../components/GlassCard';
 import MaterialIcon from '../components/MaterialIcon';
 import ContactModal from '../components/ContactModal';
+import VideoHero from '../components/VideoHero';
 
 export default function LandingPage() {
   // isContactOpen elevado acá (landing-contact-email, design.md Decisión 6):
@@ -12,6 +13,7 @@ export default function LandingPage() {
   // ambos hijos -- se descartó un Context porque hay un solo consumidor de
   // nivel página con dos props, sin ceremonia extra.
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const heroTextRef = useRef(null);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -30,9 +32,21 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background text-on-background font-body-md">
       <Navbar onContactClick={() => setIsContactOpen(true)} />
 
-      <main>
-        {/* ===== HERO SECTION ===== */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 md:pt-20">
+      {/* ===== VIDEO HERO ===== */}
+      <VideoHero videoSrc="/hero-demo.mp4" nextSectionRef={heroTextRef} />
+
+      <main className="relative z-10">
+        {/* Capa de transición: funde de transparente (deja ver el video de
+            fondo) a opaco a medida que baja, para que el cruce entre video
+            y contenido sea un degradé y no un bloque recto apareciendo. */}
+        <div
+          className="absolute inset-x-0 top-0 z-0 pointer-events-none"
+          style={{ height: '70vh', background: 'linear-gradient(to bottom, transparent, var(--color-background) 75%)' }}
+          aria-hidden="true"
+        />
+
+        {/* ===== HERO SECTION (texto) ===== */}
+        <section ref={heroTextRef} className="relative z-10 overflow-hidden pt-28 pb-[30vh] md:pt-36 md:pb-[35vh]">
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] ai-pulse" />
             <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[100px] ai-pulse" style={{ animationDelay: '1.5s' }} />
@@ -50,33 +64,9 @@ export default function LandingPage() {
                 automatizada con Inteligencia Artificial.
               </span>
             </h1>
-            <p className="text-body-md font-body-md text-on-surface-variant max-w-3xl mx-auto mb-10 leading-relaxed">
+            <p className="text-body-md font-body-md text-on-surface-variant max-w-3xl mx-auto leading-relaxed">
               Aura analiza tu catálogo, diseña las publicidades y las publica automáticamente en tus redes sociales. Tú solo apruebas, nosotros hacemos el resto.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="https://wa.me/5492616177756"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gradient-to-r from-[#ddb7ff] to-[#0566d9] text-[#400071] font-bold px-8 py-4 rounded-xl hover:brightness-110 hover:shadow-[0_0_20px_4px_rgba(221,183,255,0.3)] active:scale-95 transition-all shadow-lg shadow-[#ddb7ff]/20 flex items-center gap-3"
-              >
-                <MaterialIcon icon="chat" />
-                Hablar con un asesor
-              </a>
-              <button className="glass-card rounded-xl px-8 py-4 font-bold text-primary hover:bg-primary/10 active:scale-95 transition-all flex items-center gap-3">
-                <MaterialIcon icon="play_circle" />
-                Ver Demo
-              </button>
-            </div>
-
-            {/* Stats card */}
-            <div className="mt-16 w-fit mx-auto flex items-center gap-3 glass-card rounded-2xl px-5 sm:px-8 py-4 sm:py-5 border-l-4 border-l-primary">
-              <MaterialIcon icon="monitoring" className="text-primary text-[32px]" fill />
-              <div className="text-left">
-                <p className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest">IA Analizando</p>
-                <p className="text-headline-lg font-headline-lg font-bold text-primary">+124% ROAS proyectado</p>
-              </div>
-            </div>
           </div>
         </section>
 

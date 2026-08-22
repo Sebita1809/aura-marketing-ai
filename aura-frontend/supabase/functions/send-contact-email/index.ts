@@ -62,11 +62,14 @@ serve(async (req) => {
   }
 
   try {
-    // Config leída una vez por request. RESEND_API_KEY NO tiene default:
-    // si falta, la función debe fallar explícito (tasks.md 2.6 / design.md
-    // Decisión 3), nunca responder success:true sin haber enviado.
+    // Config leída una vez por request. RESEND_API_KEY y CONTACT_TO_EMAIL NO
+    // tienen default: si faltan, la función debe fallar explícito (tasks.md
+    // 2.6 / design.md Decisión 3), nunca responder success:true sin haber
+    // enviado ni mandar el contacto a una casilla sorpresa. CONTACT_FROM_EMAIL
+    // sí tiene default: onboarding@resend.dev es la dirección pública de
+    // sandbox de Resend, funciona sin verificar dominio propio.
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-    const CONTACT_TO_EMAIL = Deno.env.get('CONTACT_TO_EMAIL') || 'botprueba418@gmail.com'
+    const CONTACT_TO_EMAIL = Deno.env.get('CONTACT_TO_EMAIL')
     const CONTACT_FROM_EMAIL = Deno.env.get('CONTACT_FROM_EMAIL') || 'onboarding@resend.dev'
 
     // Rate limit por IP (tasks.md 3.3, ahora en Postgres): se chequea ANTES
@@ -115,10 +118,17 @@ serve(async (req) => {
       return jsonResponse({ success: false, error: validationError }, 400)
     }
 
-    // RESEND_API_KEY ausente: 500 explícito, nunca success:true (spec
-    // contact-email-delivery, "Key ausente").
+    // RESEND_API_KEY / CONTACT_TO_EMAIL ausentes: 500 explícito, nunca
+    // success:true (spec contact-email-delivery, "Key ausente").
     if (!RESEND_API_KEY) {
       console.error('send-contact-email: RESEND_API_KEY no está configurada.')
+      return jsonResponse(
+        { success: false, error: 'El servicio de contacto no está configurado. Intentá por WhatsApp.' },
+        500
+      )
+    }
+    if (!CONTACT_TO_EMAIL) {
+      console.error('send-contact-email: CONTACT_TO_EMAIL no está configurada.')
       return jsonResponse(
         { success: false, error: 'El servicio de contacto no está configurado. Intentá por WhatsApp.' },
         500

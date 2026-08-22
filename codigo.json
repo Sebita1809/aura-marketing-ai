@@ -752,7 +752,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ event_key: `${$execution.id}:Edit an image:-`, event_type: 'image_edited', user_id: $('HTTP - Chequear vinculacion').item.json.id, platform: null, status: 'success', source: 'telegram_bot', metadata: { modelo: 'models/gemini-3-pro-image-preview' }, occurred_at: new Date().toISOString() }) }}",
+        "jsonBody": "={{ JSON.stringify({ event_key: `${$execution.id}:Edit an image:-`, event_type: 'image_edited', user_id: $('HTTP - Chequear vinculacion').item.json.id, platform: null, model: 'models/gemini-3-pro-image-preview', status: 'success', source: 'telegram_bot', metadata: {}, occurred_at: new Date().toISOString() }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2812,7 +2812,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ event_key: `${$execution.id}:Generate an image:-`, event_type: 'image_generated', user_id: $('HTTP - Chequear vinculacion').item.json.id, platform: null, status: 'success', source: 'telegram_bot', metadata: { modelo: 'models/gemini-3-pro-image-preview' }, occurred_at: new Date().toISOString() }) }}",
+        "jsonBody": "={{ JSON.stringify({ event_key: `${$execution.id}:Generate an image:-`, event_type: 'image_generated', user_id: $('HTTP - Chequear vinculacion').item.json.id, platform: null, model: 'models/gemini-3-pro-image-preview', status: 'success', source: 'telegram_bot', metadata: {}, occurred_at: new Date().toISOString() }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -3034,421 +3034,6 @@
           "name": "Telegram account"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "// 1. Capturamos los datos de Telegram y el estado de Redis\nconst rawInput = $('Telegram Trigger').first().json;\nlet dataRedis = $(\"Redis27\").first().json.informacion_chat;\n\nlet estadoChat = \"\";\n\n// 2. Extracción limpia del estado usando la Expresión Regular\nif (dataRedis) {\n    if (typeof dataRedis === 'object') {\n        estadoChat = dataRedis.estado_de_chat || \"\";\n    } else if (typeof dataRedis === 'string') {\n        const match = dataRedis.match(/\"estado_de_chat\"\\s*:\\s*\"([^\"]+)\"/);\n        if (match && match[1]) {\n            estadoChat = match[1].trim();\n        } else {\n            estadoChat = dataRedis.includes(\":\") ? dataRedis.split(\":\")[1].replace(/[{}\"\"\\n]/g, '').trim() : dataRedis;\n        }\n    }\n}\n\n// Extraemos datos básicos del trigger por si los usás después\nconst isBoton = !!rawInput.callback_query;\nconst isFoto = !!rawInput.message?.photo;\nconst contenido = isBoton ? rawInput.callback_query.data : rawInput.message?.text;\nconst chatId = isBoton ? rawInput.callback_query.message.chat.id : rawInput.message.chat.id;\n\n// Variable donde guardaremos la acción traducida para el Switch\nlet resultadoFinal = \"\";\n\n// 3. --- TRADUCTOR DE ESTADOS PARA EL SWITCH ---\n// Acá asociamos cada estado de Redis con la ruta exacta que pusiste en tu Switch\n\nif (!estadoChat || estadoChat === \"ESPERANDO RESPUESTA\") {\n    resultadoFinal = \"Inicio\"; // Activa la ruta: \"Mensaje predeterminado\"\n} \nelse if (estadoChat === \"ESPERANDO RESPUESTA SOBRE OPCIONES DE SUBIR INFORMACION\") {\n    resultadoFinal = \"Subir informacion\"; // Activa la ruta: \"Mensaje opciones para subir informacion\"\n} \nelse if (estadoChat === \"ESPERANDO LINK DE GOOGLE SHEET\") {\n    resultadoFinal = \"Google sheet\"; // Activa la ruta: \"Google sheet\"\n} \nelse if (estadoChat === \"ESPERANDO INFORMACION SOBRE ESPECIFICACIONES\") {\n    resultadoFinal = \"Especificaciones\";\n} \nelse if (estadoChat === \"ESPERANDO ESPECIFICACION PARA REHACER\") {\n    resultadoFinal = \"Especificaciones para rehacer\";\n} \nelse if (estadoChat === \"ESPERANDO PDF\") {\n    resultadoFinal = \"Analizar PDF\";\n} \nelse if (estadoChat === \"ESPERANDO APROBACION\") {\n    resultadoFinal = \"Aprobacion\";\n} \nelse if (estadoChat === \"ESPERANDO RESPUESTA SOBRE IMAGEN\") {\n    resultadoFinal = \"Manejo de imagen\";\n} \nelse if (estadoChat === \"ESPERANDO IMAGENES\") {\n    resultadoFinal = \"Imagen de informacion\";\n} \nelse {\n    // Si cae un estado que no mapeamos, le pasamos el estado limpio como fallback\n    resultadoFinal = estadoChat; \n}\n\n// Retornamos el resultado estructurado para tu Switch\nreturn {\n    json: {\n        id_chat: chatId,\n        tipo: isBoton ? \"Boton\" : (isFoto ? \"Imagen\" : \"Texto\"),\n        resultado: resultadoFinal, // <--- Esto es lo que lee tu {{$json.resultado}}\n        dato: contenido\n    }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        135584,
-        230208
-      ],
-      "id": "e14795e6-c440-4f5a-ad6b-74e92fca1aa4",
-      "name": "Code in JavaScript8"
-    },
-    {
-      "parameters": {
-        "rules": {
-          "values": [
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "934e63dc-aed0-4ebc-a426-99ac87bde921",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Inicio",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Mensaje predeterminado"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "0ed06d41-0c88-4051-b611-85e736ae5d71",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Subir informacion",
-                    "operator": {
-                      "type": "string",
-                      "operation": "contains"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Mensaje opciones para subir informacion"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "=Google sheet",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    },
-                    "id": "92f1e967-3b72-4889-980d-e6fe14265985"
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Mensaje google sheet"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "7b80b990-9a29-40a1-89b4-8b0fce53cfeb",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Imagen",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Mensaje imagenes"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "2e4f89d1-130e-4a93-b09c-08c4edf99ae3",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "PDF",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Mensaje pdf"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "4148cea7-e93e-4fd1-91a4-3b80b9a39c66",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": " Generar publicidad",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Mensaje generar imagenes"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "6b46cf0d-e195-44d2-bfcf-7b35a52ee170",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Dar especificaciones",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals",
-                      "name": "filter.operator.equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Mensaje especificaciones"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "454c6286-392c-4ef6-9c11-18367b6926dc",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Sin especificaciones",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Continuar sin especificaciones"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "67bd9ada-10d0-49ac-97ac-25a4b452924d",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Aprobado",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Aprobacion publicidad"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "492c5e11-84b0-4896-92f1-ee25c60c9b97",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Rechazado",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Rechazar publicacion"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "93ff9542-a167-4daf-8d3c-0ee1ba638e96",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Especificaciones",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Especificaciones"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "4cf06542-8457-4bcc-a21e-cf42306568f9",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Especificaciones para rehacer",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Especificaciones para rehacer"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "6ce185dc-7f75-45c8-814b-7e48d8d978e1",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Link",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Link de google sheet"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "0162bb80-9ce7-4037-bef3-cab69e9e4d1f",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Imagen de informacion",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Guardar imagenes"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "893cdbe5-a40a-483a-b0e3-f37a983e4b6c",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "No agregar foto",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Analizar foto"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "dcd78ca8-7b6d-4c01-8399-8a509c521c5d",
-                    "leftValue": "={{$json.resultado}}",
-                    "rightValue": "Analizar PDF",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Analizar pdf"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.4,
-      "position": [
-        135888,
-        230208
-      ],
-      "id": "0e780127-f463-4b13-a73d-0656b069232a",
-      "name": "Switch"
     },
     {
       "parameters": {
@@ -4046,7 +3631,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ (() => {\n  // user-panel-features Grupo 4 (design.md D2/D3/D4): emite post_published o\n  // post_scheduled, UNA FILA POR PLATAFORMA, recién despues del exito de\n  // 'HTTP - Crear post Postiz' (fire-and-forget: si este nodo falla, nunca\n  // corta el flujo del usuario, ver onError como propiedad del nodo).\n  // Nota de apply: en vez de emitir desde 'Calcular fecha publicacion' (como\n  // sugeria design.md literalmente), se emite aca porque es el primer punto\n  // del grafo donde YA se conoce a la vez la programacion (tipo/fechaISO,\n  // via 'Redis - Get programacion') Y las plataformas elegidas (postsArray,\n  // via 'Preparar integraciones') -- 'Calcular fecha publicacion' corre\n  // antes de que existan las integraciones seleccionadas.\n  const execId = $execution.id;\n  const userId = $('HTTP - Perfil publicacion').item.json.id;\n  const rawProg = $('Redis - Get programacion').item.json.programacion_raw;\n  let prog = { tipo: 'now', fechaISO: new Date().toISOString() };\n  if (rawProg) {\n    try {\n      const parsed = JSON.parse(rawProg);\n      if (parsed && parsed.tipo) prog = { tipo: parsed.tipo, fechaISO: parsed.fechaISO || new Date().toISOString() };\n    } catch (e) {}\n  }\n  const eventType = prog.tipo === 'schedule' ? 'post_scheduled' : 'post_published';\n  const postsArray = $('Preparar integraciones').item.json.postsArray || [];\n  const nowIso = new Date().toISOString();\n  const rows = postsArray.map((p) => {\n    const platform = (p.settings && p.settings.__type) || 'unknown';\n    return {\n      event_key: `${execId}:HTTP - Crear post Postiz:${platform}`,\n      event_type: eventType,\n      user_id: userId,\n      platform,\n      status: 'success',\n      source: 'telegram_bot',\n      metadata: eventType === 'post_scheduled' ? { scheduled_for: prog.fechaISO } : { media_type: 'image' },\n      occurred_at: nowIso\n    };\n  });\n  return JSON.stringify(rows);\n})() }}",
+        "jsonBody": "={{ (() => {\n  // user-panel-features Grupo 4 (design.md D2/D3/D4): emite post_published o\n  // post_scheduled, UNA FILA POR PLATAFORMA, recién despues del exito de\n  // 'HTTP - Crear post Postiz' (fire-and-forget: si este nodo falla, nunca\n  // corta el flujo del usuario, ver onError como propiedad del nodo).\n  // Nota de apply: en vez de emitir desde 'Calcular fecha publicacion' (como\n  // sugeria design.md literalmente), se emite aca porque es el primer punto\n  // del grafo donde YA se conoce a la vez la programacion (tipo/fechaISO,\n  // via 'Redis - Get programacion') Y las plataformas elegidas (postsArray,\n  // via 'Preparar integraciones') -- 'Calcular fecha publicacion' corre\n  // antes de que existan las integraciones seleccionadas.\n  const execId = $execution.id;\n  const userId = $('HTTP - Chequear vinculacion').first().json.id;\n  const rawProg = $('Redis - Get programacion').first().json.programacion_raw;\n  let prog = { tipo: 'now', fechaISO: new Date().toISOString() };\n  if (rawProg) {\n    try {\n      const parsed = JSON.parse(rawProg);\n      if (parsed && parsed.tipo) prog = { tipo: parsed.tipo, fechaISO: parsed.fechaISO || new Date().toISOString() };\n    } catch (e) {}\n  }\n  const eventType = prog.tipo === 'schedule' ? 'post_scheduled' : 'post_published';\n  const postsArray = $('Preparar integraciones').first().json.postsArray || [];\n  const nowIso = new Date().toISOString();\n  const rows = postsArray.map((p) => {\n    const platform = (p.settings && p.settings.__type) || 'unknown';\n    return {\n      event_key: `${execId}:HTTP - Crear post Postiz:${platform}`,\n      event_type: eventType,\n      user_id: userId,\n      platform,\n      status: 'success',\n      source: 'telegram_bot',\n      metadata: eventType === 'post_scheduled' ? { scheduled_for: prog.fechaISO } : { media_type: 'image' },\n      occurred_at: nowIso\n    };\n  });\n  return JSON.stringify(rows);\n})() }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -4260,26 +3845,6 @@
         131296,
         230208
       ]
-    },
-    {
-      "parameters": {
-        "operation": "editMessageReplyMarkup"
-      },
-      "id": "ffa39604-2dc6-4c66-a3f5-1c4f43ee9b20",
-      "name": "Edit - Borrar keyboard foto",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        130704,
-        230384
-      ],
-      "webhookId": "5caa7eb7-0583-4617-8d3d-3b07e2994881",
-      "credentials": {
-        "telegramApi": {
-          "id": "bBArR5HmMY4lYgoZ",
-          "name": "Telegram account"
-        }
-      }
     },
     {
       "parameters": {
@@ -6854,15 +6419,15 @@
     },
     {
       "parameters": {
-        "content": "## 🚪 Entrada y Trigger\n\nPunto de entrada del bot: escucha mensajes y callbacks de botones entrantes desde Telegram. Todo mensaje o click de boton arranca aca y pasa primero por el gate de rate limiting antes de cualquier otro procesamiento.\n\n_(1 nodos)_",
-        "height": 420,
-        "width": 420
+        "content": "## 🚪 Entrada y Trigger\n\nPunto de entrada del bot: escucha mensajes y callbacks de botones entrantes desde Telegram. Antes de cualquier otro procesamiento, un guard de deduplicación descarta reintentos de Telegram con el mismo update_id (evita procesar el mismo mensaje dos veces), y recién después pasa por el gate de rate limiting.\n\n_(5 nodos)_",
+        "height": 540,
+        "width": 692
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        130640,
-        229040
+        130368,
+        228920
       ],
       "id": "e869af65-0c0b-4bda-bf86-48d4797f7a37",
       "name": "Sticky - entrada"
@@ -6913,22 +6478,6 @@
       ],
       "id": "89f9b3ca-fd56-4c6a-8961-9817d985eeaf",
       "name": "Sticky - dispatcher"
-    },
-    {
-      "parameters": {
-        "content": "## ⚠️ Código huérfano (no alcanzable) — revisar\n\nEstos dos nodos (\"Code in JavaScript8\" y \"Switch\") no tienen ninguna conexion entrante en todo el workflow: no son alcanzables desde el Telegram Trigger. \"Switch\" duplica parcialmente las primeras 16 salidas de Switch3 (el dispatcher real). Parecen restos de una version anterior del dispatcher. No se modificaron en esta pasada (solo reposicionados) — recomendado revisar si se pueden borrar.\n\n_(2 nodos)_",
-        "height": 420,
-        "width": 720,
-        "color": 4
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        135520,
-        230032
-      ],
-      "id": "84c3b541-572a-4444-a3e9-b30a5e18ebc7",
-      "name": "Sticky - dead_code"
     },
     {
       "parameters": {
@@ -7271,44 +6820,6 @@
       "notes": "Rediseno 2026-08-19: Basic LLM Chain simple (sin agente, sin tool-calling) -- esquiva por completo el bug de framework de ToolsAgent V3. Los datos reales ya estan en el prompt como texto (via {{ $json.filas }}), asi que no hay ningun tool que el modelo pueda 'elegir no llamar': la alucinacion de raiz queda eliminada porque no hay nada que inventar, el contenido real ya esta ahi. Usa el mismo 'Google Gemini Chat Model1' que ya usaba AI Agent1 (conexion ai_languageModel reutilizada). Salida en \\$json.text (formatResponse de ChainLlm) en vez de \\$json.output (que usa el nodo Agent) -- 'Code in JavaScript' se actualizo para aceptar ambos."
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        145000,
-        251000
-      ],
-      "id": "d1e2f3a4-0020-4a1b-9c2d-000000000020",
-      "name": "Manual - Restaurar Lombardo Simple"
-    },
-    {
-      "parameters": {
-        "method": "PATCH",
-        "url": "https://legffrhakunfignlaftl.supabase.co/rest/v1/products?id=eq.45de74a6-467c-4eff-bc3e-2bb192a6e021",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "{\"product_data\":{\"precio\":\"$12.500\",\"descripcion\":\"carne smash, provoleta, cherrys confitados, salsa alioli & criolla\",\"nombre del producto\":\"LOMBARDO SIMPLE\",\"otros aspectos que consideres necesarios\":\"Incluye papas. Opciones disponibles: veggie, sin TACC.\"}}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        145280,
-        251000
-      ],
-      "id": "d1e2f3a4-0020-4a1b-9c2d-000000000021",
-      "name": "HTTP - TEMP restaurar Lombardo Simple",
-      "notes": "TEMPORAL -- borrar este nodo y el Manual Trigger despues de ejecutar una vez. Restaura precio/descripcion reales de LOMBARDO SIMPLE (id 45de74a6-467c-4eff-bc3e-2bb192a6e021), sobrescrito a proposito por el caso 2 de la campana de testeo (ejecucion n8n #912, 2026-08-19 21:13) para probar la vulnerabilidad de sobrescritura de productos. Ver tests/campaign-2026-08-19/excel-injection/RESULTS.md.",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "7urpefTlc4ym1OfT",
-          "name": "Supabase Service Role"
-        }
-      }
-    },
-    {
       "parameters": {
         "operation": "get",
         "propertyName": "yaNotificado",
@@ -7497,6 +7008,21 @@
       "id": "a1b2c3d4-0050-4a1b-9c2d-000000000050",
       "name": "Code - Reducir a 1 item (fix duplicados)",
       "notes": "Ver jsCode. Causa raiz real del hallazgo de mensajes duplicados en la carga por imagen (no era de red -- las dos guardas de idempotencia anteriores quedan como defensa extra, inofensivas, pero esta es la correccion real)."
+    },
+    {
+      "parameters": {
+        "content": "## 🔗 Google Sheets directo (link pegado)\n\nRama alternativa del dispatcher (Switch3): si el usuario pega directamente un link de Google Sheets en vez de usar el flujo guiado, se detecta, se leen las filas, se formatean y se normalizan con Gemini antes de converger en el flujo de productos via Sheets.\n\n_(4 nodos)_",
+        "height": 240,
+        "width": 1620
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        130640,
+        235850
+      ],
+      "id": "a3f1c8de-6b2a-4e77-9c4f-2d8e5a7b9c10",
+      "name": "Sticky - sheets_directo"
     }
   ],
   "connections": {
@@ -7725,12 +7251,12 @@
       "main": [
         [
           {
-            "node": "Info imagen IA",
+            "node": "HTTP - Emit usage_events image_edited",
             "type": "main",
             "index": 0
           },
           {
-            "node": "HTTP - Emit usage_events image_edited",
+            "node": "Info imagen IA",
             "type": "main",
             "index": 0
           },
@@ -8336,12 +7862,12 @@
       "main": [
         [
           {
-            "node": "Info imagen IA",
+            "node": "HTTP - Emit usage_events image_generated",
             "type": "main",
             "index": 0
           },
           {
-            "node": "HTTP - Emit usage_events image_generated",
+            "node": "Info imagen IA",
             "type": "main",
             "index": 0
           },
@@ -8415,133 +7941,6 @@
         [
           {
             "node": "Switch3",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript8": {
-      "main": [
-        [
-          {
-            "node": "Switch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Switch": {
-      "main": [
-        [
-          {
-            "node": "Mensaje predeterminado",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Mensaje para mostrar opciones para subir los datos",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Mensaje de opcion elegida \"Google Sheet\"",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Mensaje de opcion elegida \"Imagenes\"",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Send a text message8",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Send a text message1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Send a text message3",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "HTTP - Leer producto imagen",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Mensaje predeterminado",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Send a text message5",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Redis23",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Redis5",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "AI Agent1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Redis6",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Redis7",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Send a text message2",
             "type": "main",
             "index": 0
           }
@@ -8785,11 +8184,6 @@
       "main": [
         [
           {
-            "node": "Code - Colapsar respuesta Postiz",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "HTTP - Emit usage_events post_published_scheduled",
             "type": "main",
             "index": 0
@@ -8864,17 +8258,6 @@
         [
           {
             "node": "Edit a text message1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit - Borrar keyboard foto": {
-      "main": [
-        [
-          {
-            "node": "Switch3",
             "type": "main",
             "index": 0
           }
@@ -10034,17 +9417,6 @@
         ]
       ]
     },
-    "Manual - Restaurar Lombardo Simple": {
-      "main": [
-        [
-          {
-            "node": "HTTP - TEMP restaurar Lombardo Simple",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Redis - Get dedup notificacion imagen": {
       "main": [
         [
@@ -10129,6 +9501,17 @@
         [
           {
             "node": "Redis - Get dedup notificacion imagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Emit usage_events post_published_scheduled": {
+      "main": [
+        [
+          {
+            "node": "Code - Colapsar respuesta Postiz",
             "type": "main",
             "index": 0
           }

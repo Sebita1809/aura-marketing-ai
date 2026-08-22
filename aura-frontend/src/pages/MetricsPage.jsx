@@ -5,6 +5,7 @@ import MaterialIcon from '../components/MaterialIcon';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { aggregateUsage, PLATFORMS } from '../lib/usageMetrics';
+import Avatar from '../components/Avatar';
 
 // user-panel-features, Grupo 6 (design.md D10). Trae las filas del rango
 // elegido y agrega en JS con aggregateUsage (helper puro, testeado en
@@ -45,7 +46,7 @@ function StatTile({ icon, label, value }) {
 }
 
 export default function MetricsPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [range, setRange] = useState('30');
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -116,7 +117,7 @@ export default function MetricsPage() {
           </div>
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 cursor-pointer active:scale-95 transition-all">
-              <MaterialIcon icon="account_circle" size="text-[32px]" />
+              <Avatar avatarKey={profile?.avatar_key} size="text-[22px]" />
             </div>
           </div>
         </header>

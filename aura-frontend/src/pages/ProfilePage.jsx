@@ -5,6 +5,8 @@ import GradientButton from '../components/GradientButton';
 import MaterialIcon from '../components/MaterialIcon';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import Avatar from '../components/Avatar';
+import { AVATAR_OPTIONS } from '../lib/avatarOptions';
 
 // user-panel-features, Grupo 7 (campos simples, design.md D8) + Grupo 8
 // (credenciales, Gate 0.B — APROBADO por el usuario 2026-08-18). Dos bloques
@@ -26,7 +28,7 @@ function Field({ label, value }) {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, profile, updateProfile } = useAuth();
 
   // --- Datos de la cuenta (MEDIUM, autónomo) ---
   const [row, setRow] = useState(null);
@@ -34,6 +36,7 @@ export default function ProfilePage() {
   const [rowError, setRowError] = useState(null);
   const [fullName, setFullName] = useState('');
   const [company, setCompany] = useState('');
+  const [avatarKey, setAvatarKey] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [saved, setSaved] = useState(false);
@@ -45,13 +48,14 @@ export default function ProfilePage() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, company, role, status, created_at, telegram_chat_id')
+        .select('full_name, company, role, status, created_at, telegram_chat_id, avatar_key')
         .eq('id', user.id)
         .single();
       if (error) throw error;
       setRow(data);
       setFullName(data.full_name || '');
       setCompany(data.company || '');
+      setAvatarKey(data.avatar_key || null);
     } catch (err) {
       console.error('Error al cargar el perfil:', err.message);
       setRowError('No se pudo cargar tu perfil. Intentá de nuevo más tarde.');
@@ -78,16 +82,21 @@ export default function ProfilePage() {
     }
     setSaving(true);
     try {
-      // Update acotado a la fila propia por RLS; acotado a estas dos
-      // columnas por el GRANT de columna (Gate 0.A) — role/status/
-      // telegram_chat_id/email no son escribibles desde acá aunque se
-      // intente. No dispara ningún cambio de email/contraseña (tasks.md 7.7).
+      // Update acotado a la fila propia por RLS; acotado a estas tres
+      // columnas por el GRANT de columna (Gate 0.A + avatar_key,
+      // 20260821180000) — role/status/telegram_chat_id/email no son
+      // escribibles desde acá aunque se intente. No dispara ningún cambio de
+      // email/contraseña (tasks.md 7.7).
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: fullName.trim(), company: company.trim() || null })
+        .update({ full_name: fullName.trim(), company: company.trim() || null, avatar_key: avatarKey })
         .eq('id', user.id);
       if (error) throw error;
-      setRow((r) => ({ ...r, full_name: fullName.trim(), company: company.trim() || null }));
+      setRow((r) => ({ ...r, full_name: fullName.trim(), company: company.trim() || null, avatar_key: avatarKey }));
+      // Refleja el cambio de inmediato en el header de esta página y en el
+      // resto de la app (Sidebar, otros headers) sin esperar a un refetch de
+      // sesión -- antes se veía el avatar viejo hasta recargar.
+      updateProfile({ full_name: fullName.trim(), company: company.trim() || null, avatar_key: avatarKey });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
@@ -198,7 +207,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 cursor-pointer active:scale-95 transition-all">
-              <MaterialIcon icon="account_circle" size="text-[32px]" />
+              <Avatar avatarKey={profile?.avatar_key} size="text-[22px]" />
             </div>
           </div>
         </header>
@@ -246,6 +255,26 @@ export default function ProfilePage() {
                       )
                     }
                   />
+                </div>
+
+                <div className="pt-4 border-t border-white/5">
+                  <label className="font-label-sm text-on-surface-variant block mb-2">Foto de perfil</label>
+                  <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+                    {AVATAR_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => setAvatarKey(opt.key)}
+                        aria-label={`Elegir avatar ${opt.icon}`}
+                        aria-pressed={avatarKey === opt.key}
+                        className={`aspect-square rounded-full overflow-hidden transition-all active:scale-95 ${
+                          avatarKey === opt.key ? 'ring-2 ring-primary ring-offset-2 ring-offset-surface-dim' : 'hover:opacity-80'
+                        }`}
+                      >
+                        <Avatar avatarKey={opt.key} size="text-[20px]" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-white/5">

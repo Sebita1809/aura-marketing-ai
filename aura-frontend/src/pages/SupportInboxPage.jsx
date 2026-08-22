@@ -3,6 +3,8 @@ import Sidebar from '../components/Sidebar';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import MaterialIcon from '../components/MaterialIcon';
+import Avatar from '../components/Avatar';
+import { useAuth } from '../context/AuthContext';
 import { useSupport } from '../hooks/useSupport';
 import { sortByLastActivity, countUnread } from '../lib/supportLogic';
 
@@ -51,6 +53,7 @@ function requesterLabel(ticket) {
 }
 
 export default function SupportInboxPage() {
+  const { profile } = useAuth();
   const {
     listAllTickets, listMessages, sendMessage, markAsRead, setTicketStatus, subscribeToSupport,
   } = useSupport();
@@ -238,8 +241,8 @@ export default function SupportInboxPage() {
             )}
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center">
-              <MaterialIcon icon="account_circle" className="text-[20px]" />
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10">
+              <Avatar avatarKey={profile?.avatar_key} size="text-[16px]" />
             </div>
           </div>
         </header>

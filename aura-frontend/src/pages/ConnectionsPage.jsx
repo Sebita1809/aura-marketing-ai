@@ -5,6 +5,7 @@ import GlassCard from '../components/GlassCard';
 import ExpiryBanner from '../components/ExpiryBanner';
 import GradientButton from '../components/GradientButton';
 import MaterialIcon from '../components/MaterialIcon';
+import Avatar from '../components/Avatar';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -595,7 +596,7 @@ export default function ConnectionsPage() {
               )}
             </button>
             <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 cursor-pointer active:scale-95 transition-all">
-              <MaterialIcon icon="account_circle" size="text-[32px]" />
+              <Avatar avatarKey={profile?.avatar_key} size="text-[22px]" />
             </div>
           </div>
         </header>

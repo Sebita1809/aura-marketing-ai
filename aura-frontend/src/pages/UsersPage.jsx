@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import GlassCard from '../components/GlassCard';
 import MaterialIcon from '../components/MaterialIcon';
 import GradientButton from '../components/GradientButton';
+import Avatar from '../components/Avatar';
 import RegisterUser from './RegisterUser';
 
 // design.md D10: tamaño de página fijo y explícito.
@@ -221,7 +222,7 @@ function ilikePattern(term) {
 }
 
 export default function UsersPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
@@ -269,7 +270,7 @@ export default function UsersPage() {
       let query = supabase
         .from('profiles')
         .select(
-          'id, full_name, company, email, role, status, telegram_chat_id, telegram_id, created_at',
+          'id, full_name, company, email, role, status, telegram_chat_id, telegram_id, created_at, avatar_key',
           { count: 'exact' }
         );
 
@@ -325,7 +326,7 @@ export default function UsersPage() {
     try {
       const { data, error: detailError } = await supabase
         .from('profiles')
-        .select('id, full_name, company, email, role, status, telegram_chat_id, telegram_id, created_at, status_changed_at, status_changed_by, status_reason')
+        .select('id, full_name, company, email, role, status, telegram_chat_id, telegram_id, created_at, status_changed_at, status_changed_by, status_reason, avatar_key')
         .eq('id', profile.id)
         .single();
 
@@ -363,7 +364,7 @@ export default function UsersPage() {
   const refreshRow = async (id) => {
     const { data, error: refreshError } = await supabase
       .from('profiles')
-      .select('id, full_name, company, email, role, status, telegram_chat_id, telegram_id, created_at')
+      .select('id, full_name, company, email, role, status, telegram_chat_id, telegram_id, created_at, avatar_key')
       .eq('id', id)
       .single();
 
@@ -451,8 +452,8 @@ export default function UsersPage() {
             <h2 className="font-headline-lg text-headline-lg font-bold text-primary">Gestión de Usuarios</h2>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center">
-              <MaterialIcon icon="account_circle" className="text-[20px]" />
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10">
+              <Avatar avatarKey={profile?.avatar_key} size="text-[16px]" />
             </div>
           </div>
         </header>
@@ -580,8 +581,8 @@ export default function UsersPage() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary">
-                                <MaterialIcon icon="person" className="text-[18px]" />
+                              <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                                <Avatar avatarKey={profile.avatar_key} size="text-[16px]" />
                               </div>
                               <span className="font-medium text-on-surface">{profile.full_name || '—'}</span>
                             </div>
@@ -684,9 +685,14 @@ export default function UsersPage() {
                   <MaterialIcon icon="close" />
                 </button>
               </div>
-              <h1 id="user-detail-title" className="font-headline-lg text-headline-lg text-on-surface mb-1">
-                {selectedUser.full_name || selectedUser.email || 'Usuario'}
-              </h1>
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/10">
+                  <Avatar avatarKey={selectedUser.avatar_key} size="text-[22px]" />
+                </div>
+                <h1 id="user-detail-title" className="font-headline-lg text-headline-lg text-on-surface">
+                  {selectedUser.full_name || selectedUser.email || 'Usuario'}
+                </h1>
+              </div>
               <StatusBadge status={selectedUser.status} />
             </div>
 

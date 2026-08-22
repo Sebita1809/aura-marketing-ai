@@ -35,7 +35,7 @@ export function AuthProvider({ children }) {
     const fetchProfile = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('role, company, full_name, status')
+        .select('role, company, full_name, status, avatar_key')
         .eq('id', user.id)
         .single();
 
@@ -80,8 +80,17 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   };
 
+  // Merge local optimista sobre `profile` tras un update propio ya
+  // confirmado por el servidor (ProfilePage) -- evita que el resto de la app
+  // (headers, Sidebar) siga mostrando el valor viejo hasta el próximo
+  // refetch de sesión. No dispara ningún fetch nuevo, no reemplaza loadRow
+  // de ProfilePage (esa sigue siendo la fuente de verdad para esa página).
+  const updateProfile = (partial) => {
+    setProfile((p) => (p ? { ...p, ...partial } : p));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, profileLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, profileLoading, login, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

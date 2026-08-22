@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const SUPABASE_URL = 'https://legffrhakunfignlaftl.supabase.co';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 export default function MetaOAuthCallback() {
   const [status, setStatus] = useState('Procesando autorización...');

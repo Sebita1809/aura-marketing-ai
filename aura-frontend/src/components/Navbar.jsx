@@ -1,5 +1,15 @@
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import MaterialIcon from './MaterialIcon';
+
+// Debe coincidir con el spacer de 1 viewport que reserva VideoHero.jsx
+// para el scroll del video -- es el punto en el que el texto del hero
+// empieza a entrar en pantalla.
+const SPACER_VH = 1;
+// Fracción final de ese viewport en la que el navbar pasa de invisible a
+// visible (se mantiene oculto mientras se ve el video, y aparece recién
+// cuando el texto ya está entrando).
+const FADE_IN_FRACTION = 0.3;
 
 // El estado isContactOpen y el ContactModal vivían acá (landing-contact-email,
 // design.md Decisión 6). Se elevaron a LandingPage.jsx para que el Footer
@@ -7,6 +17,21 @@ import MaterialIcon from './MaterialIcon';
 // onContactClick y ya no monta su propio ContactModal.
 export default function Navbar({ onContactClick }) {
   const navigate = useNavigate();
+  const [opacity, setOpacity] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const spacerHeight = window.innerHeight * SPACER_VH;
+      const fadeInStart = spacerHeight * (1 - FADE_IN_FRACTION);
+      const range = spacerHeight - fadeInStart;
+      const next = Math.min(1, Math.max(0, (window.scrollY - fadeInStart) / range));
+      setOpacity(next);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
@@ -14,7 +39,10 @@ export default function Navbar({ onContactClick }) {
   };
 
   return (
-      <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-white/10 shadow-sm">
+      <nav
+        className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-white/10 shadow-sm transition-opacity duration-150 ease-out"
+        style={{ opacity, pointerEvents: opacity > 0.05 ? 'auto' : 'none' }}
+      >
         <div className="max-w-container-max mx-auto px-4 md:px-10 flex items-center justify-between h-16 md:h-20">
 
           {/* Logo */}

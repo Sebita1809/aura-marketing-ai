@@ -3,6 +3,8 @@ import Sidebar from '../components/Sidebar';
 import GlassCard from '../components/GlassCard';
 import MaterialIcon from '../components/MaterialIcon';
 import StatCard from '../components/StatCard';
+import Avatar from '../components/Avatar';
+import { useAuth } from '../context/AuthContext';
 import {
   PERIODS,
   DEFAULT_PERIOD,
@@ -21,6 +23,7 @@ const PERIOD_LABELS = { 7: '7 días', 30: '30 días', 90: '90 días', all: 'Todo
 const COST_NOTE = 'Estimación por invocación — no es facturación de Google Cloud.';
 
 export default function AdminDashboard() {
+  const { profile } = useAuth();
   const [period, setPeriod] = useState(DEFAULT_PERIOD);
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -77,8 +80,8 @@ export default function AdminDashboard() {
             <h2 className="font-headline-lg text-headline-lg font-bold text-primary">Dashboard</h2>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center">
-              <MaterialIcon icon="account_circle" className="text-[20px]" />
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10">
+              <Avatar avatarKey={profile?.avatar_key} size="text-[16px]" />
             </div>
           </div>
         </header>

@@ -245,6 +245,16 @@ export default function UsersPage() {
   const [openMenu, setOpenMenu] = useState(null); // { profileId, top, left } | null
   const [pendingAction, setPendingAction] = useState(null); // { action, profile } | null
   const [loadingIds, setLoadingIds] = useState(() => new Set());
+  const [expandedRows, setExpandedRows] = useState(() => new Set());
+
+  const toggleRow = (id) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
   const [actionError, setActionError] = useState(null); // { message } | null
 
   // Debounce de búsqueda: 300ms sin tipear antes de disparar la consulta al
@@ -447,8 +457,18 @@ export default function UsersPage() {
         className="md:ml-64 min-h-screen overflow-y-auto relative"
         onScroll={() => setOpenMenu((current) => (current ? null : current))}
       >
-        <header className="h-16 flex items-center justify-between px-margin-desktop bg-surface-container-lowest/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-30">
-          <div>
+        <header className="h-16 flex items-center justify-between px-margin-mobile md:px-margin-desktop bg-surface-container-lowest/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-30">
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={() => document.dispatchEvent(new CustomEvent('open-sidebar'))}
+              className="p-1 -ml-1 rounded-lg text-primary hover:bg-white/5 active:scale-95 transition-all"
+              aria-label="Abrir menú"
+            >
+              <MaterialIcon icon="menu" />
+            </button>
+            <span className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">Aura</span>
+          </div>
+          <div className="hidden md:block">
             <h2 className="font-headline-lg text-headline-lg font-bold text-primary">Gestión de Usuarios</h2>
           </div>
           <div className="flex items-center gap-3">
@@ -553,7 +573,84 @@ export default function UsersPage() {
               </div>
             ) : (
               <>
-                <div className="overflow-x-auto">
+                {/* Mobile (< md): acordeón -- solo avatar + nombre visibles,
+                    toca para desplegar el resto (mismo patrón que la tabla
+                    de Productos). */}
+                <div className="md:hidden divide-y divide-white/5">
+                  {profiles.map((profile) => {
+                    const isOpen = expandedRows.has(profile.id);
+                    const isLoading = loadingIds.has(profile.id);
+                    return (
+                      <div key={profile.id} className={isLoading ? 'opacity-50 pointer-events-none' : ''}>
+                        <button
+                          type="button"
+                          onClick={() => toggleRow(profile.id)}
+                          aria-expanded={isOpen}
+                          className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-white/[0.03] transition-colors"
+                        >
+                          <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                            <Avatar avatarKey={profile.avatar_key} size="text-[16px]" />
+                          </div>
+                          <span className="font-medium text-on-surface flex-1 truncate">{profile.full_name || '—'}</span>
+                          <MaterialIcon
+                            icon="expand_more"
+                            className={`text-on-surface-variant shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                          />
+                        </button>
+                        {isOpen && (
+                          <div className="px-4 pb-4 space-y-3">
+                            <div>
+                              <p className="font-label-sm text-on-surface-variant uppercase tracking-wider text-[10px] mb-0.5">ID</p>
+                              <p className="font-label-sm text-label-sm text-outline">{profile.id ? profile.id.substring(0, 8).toUpperCase() : '—'}</p>
+                            </div>
+                            <div>
+                              <p className="font-label-sm text-on-surface-variant uppercase tracking-wider text-[10px] mb-0.5">Empresa</p>
+                              <p className="text-on-surface-variant">{profile.company || '—'}</p>
+                            </div>
+                            <div>
+                              <p className="font-label-sm text-on-surface-variant uppercase tracking-wider text-[10px] mb-0.5">Correo Electrónico</p>
+                              <p className="text-on-surface-variant break-all">{profile.email || '—'}</p>
+                            </div>
+                            <div>
+                              <p className="font-label-sm text-on-surface-variant uppercase tracking-wider text-[10px] mb-0.5">Rol</p>
+                              <p className="text-on-surface-variant">{ROLE_LABELS[profile.role] || profile.role || '—'}</p>
+                            </div>
+                            <div>
+                              <p className="font-label-sm text-on-surface-variant uppercase tracking-wider text-[10px] mb-0.5">Telegram</p>
+                              <p className="font-mono text-sm text-primary">
+                                {profile.telegram_chat_id || <span className="font-body-md text-on-surface-variant/60 italic">no vinculado</span>}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-label-sm text-on-surface-variant uppercase tracking-wider text-[10px] mb-0.5">Estado</p>
+                              <StatusBadge status={profile.status} />
+                            </div>
+                            <div>
+                              <p className="font-label-sm text-on-surface-variant uppercase tracking-wider text-[10px] mb-0.5">Alta</p>
+                              <p className="text-on-surface-variant text-sm">{formatDate(profile.created_at)}</p>
+                            </div>
+                            <button
+                              onClick={(e) => toggleMenu(profile, e)}
+                              disabled={isLoading}
+                              className="w-full py-2.5 rounded-lg bg-surface-container-highest border border-white/10 text-on-surface-variant font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30"
+                              aria-haspopup="true"
+                              aria-expanded={openMenu?.profileId === profile.id}
+                            >
+                              {isLoading ? (
+                                <MaterialIcon icon="autorenew" className="animate-spin" size="text-sm" />
+                              ) : (
+                                <MaterialIcon icon="more_vert" size="text-sm" />
+                              )}
+                              Acciones
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-white/10 bg-white/5">

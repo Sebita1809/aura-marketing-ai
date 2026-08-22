@@ -231,8 +231,18 @@ export default function SupportInboxPage() {
     <div className="min-h-screen bg-background text-on-background font-body-md">
       <Sidebar />
       <main className="md:ml-64 min-h-screen overflow-y-auto relative">
-        <header className="h-16 flex items-center justify-between px-margin-desktop bg-surface-container-lowest/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-30">
-          <div className="flex items-center gap-3">
+        <header className="h-16 flex items-center justify-between px-margin-mobile md:px-margin-desktop bg-surface-container-lowest/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-30">
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={() => document.dispatchEvent(new CustomEvent('open-sidebar'))}
+              className="p-1 -ml-1 rounded-lg text-primary hover:bg-white/5 active:scale-95 transition-all"
+              aria-label="Abrir menú"
+            >
+              <MaterialIcon icon="menu" />
+            </button>
+            <span className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">Aura</span>
+          </div>
+          <div className="hidden md:flex items-center gap-3">
             <h2 className="font-headline-lg text-headline-lg font-bold text-primary">Comunicados y Reportes</h2>
             {totalUnread > 0 && (
               <span className="px-2.5 py-1 rounded-full bg-error/15 text-error text-xs font-bold">

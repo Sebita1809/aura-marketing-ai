@@ -37,6 +37,16 @@ export default function ProductsPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
+  const [expandedRows, setExpandedRows] = useState(new Set());
+
+  const toggleRow = (rowKey) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(rowKey)) next.delete(rowKey);
+      else next.add(rowKey);
+      return next;
+    });
+  };
 
   const filteredItems = filterProducts(items, search);
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
@@ -268,7 +278,91 @@ export default function ProductsPage() {
             </GlassCard>
           ) : (
             <GlassCard hover={false} className="overflow-hidden p-0">
-              <div className="overflow-x-auto">
+              {/* Mobile (< md): lista de acordeón -- solo el nombre visible,
+                  toca para desplegar precio/detalle + acciones. La tabla de
+                  4 columnas queda ilegible en una pantalla angosta. */}
+              <div className="md:hidden divide-y divide-white/5">
+                {pageItems.map((rawItem) => {
+                  const id = rawItem.id;
+                  const rowKey = id || JSON.stringify(rawItem);
+                  const { name, price, description, extra } = pickProductFields(rawItem);
+                  const isDeleting = deletingId === id;
+                  const isOpen = expandedRows.has(rowKey);
+                  return (
+                    <div key={rowKey} className={isDeleting ? 'opacity-50 pointer-events-none' : ''}>
+                      <button
+                        type="button"
+                        onClick={() => toggleRow(rowKey)}
+                        aria-expanded={isOpen}
+                        className="w-full px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-white/[0.03] transition-colors"
+                      >
+                        <span className="font-medium text-on-surface truncate">{name || 'Producto sin nombre'}</span>
+                        <MaterialIcon
+                          icon="expand_more"
+                          className={`text-on-surface-variant shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+                      {isOpen && (
+                        <div className="px-4 pb-4 space-y-3">
+                          {!id && (
+                            <p className="text-[10px] text-amber-400 flex items-center gap-1">
+                              <MaterialIcon icon="warning" size="text-xs" />
+                              Sin id — se asignará al tocarlo
+                            </p>
+                          )}
+                          <div>
+                            <p className="font-label-sm text-on-surface-variant uppercase tracking-wider text-[10px] mb-0.5">Precio</p>
+                            <p className="text-primary font-bold">
+                              {price !== null ? String(price) : <span className="text-on-surface-variant/60 font-normal italic">—</span>}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-label-sm text-on-surface-variant uppercase tracking-wider text-[10px] mb-0.5">Detalle</p>
+                            <p className="text-on-surface-variant">
+                              {description !== null ? String(description) : <span className="text-on-surface-variant/60 italic">—</span>}
+                            </p>
+                            {extra.length > 0 && (
+                              <p
+                                className="text-[11px] text-on-surface-variant/70 mt-0.5"
+                                title={extra.map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`).join('\n')}
+                              >
+                                +{extra.length} campo{extra.length > 1 ? 's' : ''} más
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 pt-1">
+                            <button
+                              onClick={() => openEdit(rawItem)}
+                              disabled={!id}
+                              title={!id ? 'Este item todavía no tiene id asignado' : 'Editar'}
+                              className="flex-1 py-2.5 rounded-lg bg-surface-container-highest border border-white/10 text-on-surface-variant font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30"
+                            >
+                              <MaterialIcon icon="edit" size="text-sm" />
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => id && setConfirmDelete(id)}
+                              disabled={!id || isDeleting}
+                              title={!id ? 'Este item todavía no tiene id asignado' : 'Eliminar'}
+                              className="flex-1 py-2.5 rounded-lg bg-surface-container-highest border border-white/10 text-on-surface-variant font-bold text-sm flex items-center justify-center gap-2 hover:bg-error/10 hover:text-error transition-all disabled:opacity-30"
+                            >
+                              {isDeleting ? (
+                                <MaterialIcon icon="autorenew" className="animate-spin" size="text-sm" />
+                              ) : (
+                                <MaterialIcon icon="delete" size="text-sm" />
+                              )}
+                              Eliminar
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop (>= md): tabla completa de siempre */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-white/10 bg-white/5">

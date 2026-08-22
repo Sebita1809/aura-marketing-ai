@@ -134,13 +134,16 @@ export default function Sidebar() {
       )}
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col fixed left-0 top-0 h-screen w-64 bg-surface-container-low border-r border-white/5 py-base px-4 gap-4 z-50">
+      <aside className="hidden md:flex flex-col fixed left-0 top-0 h-screen w-64 bg-surface-container-low border-r border-white/5 py-base px-4 gap-4 z-50 overflow-y-auto">
         {sidebarContent}
       </aside>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer -- overflow-y-auto: si el contenido no entra en la
+          altura de pantallas bajas (celular en horizontal, notebooks
+          chicas), scrollea adentro del propio drawer en vez de depender de
+          que se scrollee la página para llegar a Soporte/Cerrar sesión. */}
       <aside
-        className={`md:hidden fixed left-0 top-0 h-screen w-64 bg-surface-container-low border-r border-white/5 py-base px-4 gap-4 z-50 flex flex-col transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`md:hidden fixed left-0 top-0 h-screen w-64 bg-surface-container-low border-r border-white/5 py-base px-4 gap-4 z-50 flex flex-col overflow-y-auto transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <button
           onClick={() => setMobileOpen(false)}

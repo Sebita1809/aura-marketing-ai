@@ -56,6 +56,10 @@ const platformGroups = [
         icon: 'chat',
         bgColor: 'bg-[#101010]',
         iconColor: 'text-white',
+        // Solo Instagram, Facebook y Telegram están habilitados para
+        // conectar por ahora -- el resto se muestra deshabilitado con
+        // "Próximamente" en vez de ocultarse (deja ver qué viene).
+        comingSoon: true,
       },
     ],
   },
@@ -72,6 +76,7 @@ const platformGroups = [
         bgColor: 'bg-on-background',
         iconColor: 'text-background',
         isX: true,
+        comingSoon: true,
       },
     ],
   },
@@ -515,6 +520,27 @@ export default function ConnectionsPage() {
   };
 
   const renderPlatformCard = (net) => {
+    if (net.comingSoon) {
+      return (
+        <GlassCard key={net.id} hover={false} className="p-4 flex flex-col items-center text-center opacity-50 grayscale">
+          <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface-variant mb-3">
+            <MaterialIcon icon={net.icon} size="text-xl" />
+          </div>
+          <h3 className="font-bold text-base mb-0.5">{net.name}</h3>
+          <p className="font-label-sm text-on-surface-variant uppercase tracking-widest text-[10px] mb-3">{net.tagline}</p>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high border border-white/10 mb-3">
+            <MaterialIcon icon="schedule" size="text-xs" className="text-on-surface-variant" />
+            <span className="text-on-surface-variant text-[10px] font-bold">Próximamente</span>
+          </div>
+          <button
+            disabled
+            className="w-full py-2.5 px-3 rounded-lg bg-surface-container-highest border border-white/10 text-on-surface-variant font-bold text-sm cursor-not-allowed"
+          >
+            Próximamente
+          </button>
+        </GlassCard>
+      );
+    }
     const status = getAccountStatus(net.id);
     return (
       <GlassCard key={net.id} className="p-4 flex flex-col items-center text-center">
@@ -640,12 +666,12 @@ export default function ConnectionsPage() {
             </div>
           </section>
 
-          {(!META_APP_ID || !X_CLIENT_ID) && showEnvHint && (
+          {!META_APP_ID && showEnvHint && (
             <section className="p-4 glass-card rounded-xl border-l-4 border-l-amber-400 mb-8 relative">
               <div className="flex items-start gap-3">
                 <MaterialIcon icon="info" className="text-amber-400 mt-1" />
                 <p className="font-body-md text-on-surface-variant flex-1">
-                  Conectá tus redes sociales configurando las credenciales en <code className="bg-surface-container-high px-1 rounded text-xs">.env</code>. 
+                  Conectá Instagram y Facebook configurando las credenciales de Meta en <code className="bg-surface-container-high px-1 rounded text-xs">.env</code>.
                   Revisá <a href="/docs/oauth-config.md" className="text-primary hover:underline">docs/oauth-config.md</a> para obtener tus App ID y Client ID.
                 </p>
                 <button

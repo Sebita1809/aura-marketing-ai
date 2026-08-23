@@ -22,6 +22,7 @@ Un bot de Telegram (n8n) genera publicidad con IA (Gemini) a partir de un catál
 |---|---|---|
 | **Token de bot de Telegram** | `.env` (`TELEGRAM_BOT_TOKEN`) + credencial `Telegram account` en n8n | Hablarle a [@BotFather](https://t.me/BotFather), `/newbot`, seguir los pasos. |
 | **chat_id de admin** (opcional) | `.env` (`DEFAULT_ADMIN_CHAT_ID`) | Hablarle a [@userinfobot](https://t.me/userinfobot) con la cuenta que va a ser admin. |
+| **URL pública del panel** | `.env` (`AURA_FRONTEND_URL`, sin slash final) | El dominio donde vive `aura-frontend` (ver §5) — el bot la usa para linkear a `/productos` en el mensaje de confirmación de sobrescritura del catálogo. |
 | **API Key de Google Gemini** | Credencial `Google Gemini(PaLM) Api account` en n8n | [Google AI Studio](https://aistudio.google.com/apikey) → Create API Key. |
 | **OAuth Client (Google Sheets)** | Credencial `Google Sheets account` en n8n | [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → OAuth 2.0 Client ID (tipo Web application). Habilitar la Google Sheets API. En **Authorized redirect URIs** agregar `<TU_N8N_WEBHOOK_URL>rest/oauth2-credential/callback` (ver §5, es un error común). |
 | **Supabase Service Role Key** | Credencial `Supabase Service Role` en n8n (header `apikey`) | Panel de tu proyecto Supabase → Project Settings → API → `service_role` key. **Nunca** exponerla al frontend, solo la usa n8n server-side. |

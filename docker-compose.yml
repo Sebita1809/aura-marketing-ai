@@ -29,6 +29,12 @@ services:
       - GENERIC_TIMEZONE=America/Argentina/Buenos_Aires
       - N8N_PROXY_HOPS=1
       - DEFAULT_ADMIN_CHAT_ID=${DEFAULT_ADMIN_CHAT_ID:-}
+      # product-overwrite-safety (2026-08-23): URL pública del panel (aura-frontend),
+      # sin slash final. Usada por 'Code - Formatear mensaje confirmacion sobrescritura'
+      # para armar el link a /productos en el mensaje de confirmación de sobrescritura
+      # del bot. Setear el valor real en .env (mismo dominio que N8N_WEBHOOK_URL si
+      # ambos se sirven detrás del mismo reverse proxy, ver Caddyfile).
+      - AURA_FRONTEND_URL=${AURA_FRONTEND_URL:-}
       # Usado por los nodos HTTP Request que llaman a la Telegram Bot API
       # directamente (sendMessage/editMessageText del selector de plataformas).
       # Se usa en vez del nodo Telegram nativo porque n8n normaliza/resetea el

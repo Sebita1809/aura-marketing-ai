@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Sidebar from '../components/Sidebar';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
@@ -38,6 +38,22 @@ export default function ProductsPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const [expandedRows, setExpandedRows] = useState(new Set());
+  const [historyFor, setHistoryFor] = useState(null); // id del producto cuyo historial se muestra
+  const [versions, setVersions] = useState([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
+  const [versionsError, setVersionsError] = useState(null);
+  const [rollingBackId, setRollingBackId] = useState(null);
+  // bugfix (2026-08-23, hallazgo de code review): sin esto, abrir el historial
+  // de un producto y de inmediato el de otro podia aplicar la respuesta que
+  // resolviera ultimo, mezclando el historial de un producto con el id de otro.
+  const historyRequestRef = useRef(0);
+  // bugfix (2026-08-23, encontrado probando en vivo): un doble click en
+  // "Restaurar" podia disparar dos veces product_catalog_rollback antes de
+  // que React re-renderizara el boton como disabled, dejando una entrada de
+  // historial duplicada (la segunda llamada "restauraba" la version ya
+  // restaurada sobre si misma). rollingBackId (state) no alcanza porque su
+  // actualizacion no es sincronica; un ref si lo es.
+  const rollbackInFlightRef = useRef(false);
 
   const toggleRow = (rowKey) => {
     setExpandedRows((prev) => {
@@ -176,6 +192,60 @@ export default function ProductsPage() {
       setEditError('No se pudo guardar el cambio. Intentá de nuevo.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  // product-overwrite-safety (2026-08-23): historial de versiones + rollback por
+  // producto individual, vía las RPC product_catalog_versions_list / rollback
+  // (mismo criterio SECURITY DEFINER + auth.uid() que el resto del panel).
+  const openHistory = async (id) => {
+    const requestId = ++historyRequestRef.current;
+    setHistoryFor(id);
+    setVersions([]);
+    setVersionsError(null);
+    setLoadingVersions(true);
+    try {
+      const { data, error: rpcError } = await supabase.rpc('product_catalog_versions_list', { p_product_id: id });
+      if (rpcError) throw rpcError;
+      if (historyRequestRef.current !== requestId) return; // respuesta obsoleta, se abrio otro historial mientras tanto
+      setVersions(data || []);
+    } catch (err) {
+      if (historyRequestRef.current !== requestId) return;
+      console.error('Error al cargar el historial:', err.message);
+      setVersionsError('No se pudo cargar el historial de este producto. Intentá de nuevo.');
+    } finally {
+      if (historyRequestRef.current === requestId) setLoadingVersions(false);
+    }
+  };
+
+  const closeHistory = () => {
+    historyRequestRef.current++; // invalida cualquier respuesta todavia en vuelo
+    setHistoryFor(null);
+    setVersions([]);
+    setVersionsError(null);
+  };
+
+  const handleRollback = async (versionId) => {
+    if (rollbackInFlightRef.current) return; // ignora un doble click/doble disparo
+    rollbackInFlightRef.current = true;
+    setRollingBackId(versionId);
+    try {
+      const { data, error: rpcError } = await supabase.rpc('product_catalog_rollback', { p_version_id: versionId });
+      if (rpcError) throw rpcError;
+      setItems(normalizeProductData(data.product_data));
+      // eficiencia (2026-08-23): el propio rollback ya devuelve la version
+      // nueva que crea (el estado que acaba de pisar, siempre reversible) --
+      // se agrega directo a la lista local en vez de volver a pedir todo el
+      // historial con una segunda llamada.
+      if (data.new_version && data.new_version.id) {
+        setVersions((prev) => [data.new_version, ...prev]);
+      }
+    } catch (err) {
+      console.error('Error al restaurar la version:', err.message);
+      setVersionsError('No se pudo restaurar esa versión. Intentá de nuevo.');
+    } finally {
+      rollbackInFlightRef.current = false;
+      setRollingBackId(null);
     }
   };
 
@@ -341,6 +411,15 @@ export default function ProductsPage() {
                               Editar
                             </button>
                             <button
+                              onClick={() => id && openHistory(id)}
+                              disabled={!id}
+                              title={!id ? 'Este item todavía no tiene id asignado' : 'Ver historial y restaurar versiones anteriores'}
+                              className="flex-1 py-2.5 rounded-lg bg-surface-container-highest border border-white/10 text-on-surface-variant font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30"
+                            >
+                              <MaterialIcon icon="history" size="text-sm" />
+                              Historial
+                            </button>
+                            <button
                               onClick={() => id && setConfirmDelete(id)}
                               disabled={!id || isDeleting}
                               title={!id ? 'Este item todavía no tiene id asignado' : 'Eliminar'}
@@ -416,6 +495,14 @@ export default function ProductsPage() {
                                 className="w-9 h-9 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30"
                               >
                                 <MaterialIcon icon="edit" size="text-sm" />
+                              </button>
+                              <button
+                                onClick={() => id && openHistory(id)}
+                                disabled={!id}
+                                title={!id ? 'Este item todavía no tiene id asignado' : 'Ver historial y restaurar versiones anteriores'}
+                                className="w-9 h-9 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30"
+                              >
+                                <MaterialIcon icon="history" size="text-sm" />
                               </button>
                               <button
                                 onClick={() => id && setConfirmDelete(id)}
@@ -578,6 +665,74 @@ export default function ProductsPage() {
                   </GradientButton>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {historyFor && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="glass-card rounded-2xl p-8 max-w-lg w-full max-h-[80vh] flex flex-col">
+              <div className="flex items-center justify-between mb-6 shrink-0">
+                <h3 className="font-headline-lg text-xl text-on-surface flex items-center gap-2">
+                  <MaterialIcon icon="history" className="text-primary" />
+                  Historial del producto
+                </h3>
+                <button onClick={closeHistory} className="text-on-surface-variant hover:text-on-surface transition-colors" aria-label="Cerrar">
+                  <MaterialIcon icon="close" />
+                </button>
+              </div>
+
+              {versionsError && (
+                <p className="font-label-sm text-error mb-4 shrink-0">{versionsError}</p>
+              )}
+
+              <div className="overflow-y-auto space-y-3 -mr-2 pr-2">
+                {loadingVersions ? (
+                  <div className="space-y-3">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-16 glass-card rounded-xl animate-pulse" />
+                    ))}
+                  </div>
+                ) : versions.length === 0 ? (
+                  <p className="font-body-md text-on-surface-variant text-center py-8">
+                    Este producto todavía no tiene versiones anteriores guardadas. Cada vez que se
+                    sobrescribe (por el bot o desde este panel), la versión anterior queda acá.
+                  </p>
+                ) : (
+                  versions.map((v) => {
+                    const { name, price, description } = pickProductFields(v.snapshot || {});
+                    const isRolling = rollingBackId === v.id;
+                    return (
+                      <div key={v.id} className="p-4 rounded-xl bg-surface-container-highest border border-white/10 flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-label-sm text-on-surface-variant">
+                            {new Date(v.created_at).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' })}
+                          </p>
+                          <p className="font-medium text-on-surface truncate">{name || 'Producto sin nombre'}</p>
+                          <p className="text-primary font-bold text-sm">
+                            {price !== null ? String(price) : <span className="text-on-surface-variant/60 font-normal italic">Sin precio</span>}
+                          </p>
+                          {description !== null && (
+                            <p className="text-on-surface-variant text-sm line-clamp-2 mt-0.5">{String(description)}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleRollback(v.id)}
+                          disabled={isRolling}
+                          className="shrink-0 py-2 px-3 rounded-lg bg-primary/10 text-primary font-bold text-sm flex items-center gap-2 hover:bg-primary/20 active:scale-95 transition-all disabled:opacity-60"
+                        >
+                          {isRolling ? (
+                            <MaterialIcon icon="autorenew" className="animate-spin" size="text-sm" />
+                          ) : (
+                            <MaterialIcon icon="restore" size="text-sm" />
+                          )}
+                          Restaurar
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
         )}

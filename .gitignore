@@ -30,9 +30,6 @@ Thumbs.db
 # Backups locales de codigo.json (historial operativo, no para el repo)
 codigo.json.bak-*
 
-# Campaña de testeo con datos reales del negocio (menú, precios) — no pública
-tests/campaign-*/
-
 # Respaldo viejo del frontend
 aura-frontend-backup/
 
@@ -52,8 +49,11 @@ assets/*.png
 .temp/
 **/supabase/.temp/
 
-# Datos internos de testeo / documentación de proceso / gestión de cambios —
+# Datos internos de documentación de proceso / gestión de cambios —
 # no hace falta para que alguien clone y levante el proyecto (ver SETUP.md).
-/tests/
 /docs/
 /openspec/
+
+# tests/ SI se sube al repo (evidencia real de testing) -- excepto backups
+# comprimidos de carpetas que ya estan versionadas sueltas.
+tests/**/*.zip

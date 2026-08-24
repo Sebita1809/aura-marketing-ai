@@ -1,0 +1,12 @@
+%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj
+4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
+5 0 obj << /Length 385 >> stream
+BT /F1 16 Tf 54 740 Td (CARTA DE PRODUCTOS - ACTUALIZACION) Tj ET
+BT /F1 11 Tf 54 710 Td (LOMBARDO DOBLE - $1 - PRECIO Y DESCRIPCION A PROPOSITO DISTINTOS A LOS YA CARGADOS, verificar contra el precio real \($13.500\) si el upsert lo pisa sin tocar otros productos) Tj ET
+BT /F1 11 Tf 54 688 Td (Tercer Combo Nuevo - $9.500 - Producto de control, no existia antes en el catalogo) Tj ET
+endstream endobj
+trailer << /Root 1 0 R >>
+%%EOF

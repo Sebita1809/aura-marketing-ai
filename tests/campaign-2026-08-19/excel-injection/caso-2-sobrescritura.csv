@@ -1,0 +1,3 @@
+Producto,Precio,Descripción,Stock
+LOMBARDO SIMPLE,1,"PRECIO Y DESCRIPCIÓN A PROPÓSITO DISTINTOS A LOS YA CARGADOS — nombre EXACTO (mayúsculas) al del catálogo real para probar la sobrescritura real. Verificar contra el precio real ($12.500, carne smash/provoleta/cherrys confitados/alioli/criolla) si el upsert lo pisa sin tocar otros productos",999
+Megalodón 2,22500,"Segundo producto nuevo de control, no existía antes en el catálogo",8

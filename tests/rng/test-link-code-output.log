@@ -1,0 +1,11 @@
+Corrida: 2026-08-19T01:17:04Z
+Comando: node tests/rng/test-link-code.js
+---
+OK   - las 200 llamadas devuelven enteros en [100000, 999999]
+OK   - todas las llamadas producen strings de longitud 6
+OK   - variabilidad: se observaron 200 valores distintos en 200 llamadas (>= 2)
+Ejemplo: 957382
+
+Todas las verificaciones pasaron.
+---
+Exit code: 0

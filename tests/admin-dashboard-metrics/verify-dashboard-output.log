@@ -1,0 +1,45 @@
+Corrida: 2026-08-19T01:17:04Z
+Comando: node tests/admin-dashboard-metrics/verify-dashboard.js
+---
+--- 6.1 Migración (usage_events, ai_model_prices, admin_dashboard_metrics) ---
+OK   - existe aura-frontend\supabase\migrations\20260818140412_usage_events.sql
+OK   - usage_events se crea con CREATE TABLE IF NOT EXISTS (idempotente)
+OK   - usage_events.event_key es NOT NULL y UNIQUE (idempotencia D9)
+OK   - usage_events.event_type tiene el CHECK con los 4 valores esperados
+OK   - ai_model_prices se crea con CREATE TABLE IF NOT EXISTS (idempotente)
+OK   - ai_model_prices.unit tiene el CHECK con los 3 valores esperados
+OK   - índice idx_usage_events_occurred_at presente
+OK   - índice idx_usage_events_type_occurred presente
+OK   - índice idx_usage_events_user presente
+OK   - RLS habilitado en usage_events
+OK   - RLS habilitado en ai_model_prices
+OK   - cero CREATE POLICY en el archivo (D5: la única lectura agregada es el RPC)
+OK   - función admin_dashboard_metrics(p_from timestamptz, p_to timestamptz) presente
+OK   - admin_dashboard_metrics es SECURITY DEFINER con search_path fijo a public
+OK   - admin_dashboard_metrics valida rol admin (chequeo inline role='admin' o reuso de is_active_admin())
+OK   - admin_dashboard_metrics falla con RAISE EXCEPTION forbidden / 42501 (riesgo R7, falla cerrada)
+OK   - GRANT EXECUTE a authenticated presente
+OK   - sin GRANT EXECUTE a anon (nunca lectura anónima)
+OK   - REVOKE ALL FROM PUBLIC presente antes del GRANT explícito
+--- 6.2 Frontend (ruteo / sidebar / página) ---
+OK   - existe aura-frontend\src\pages\AdminDashboard.jsx
+OK   - existe aura-frontend\src\lib\metrics.js
+OK   - lib/metrics.js llama al RPC admin_dashboard_metrics
+OK   - AdminDashboard.jsx consume aura-frontend/src/lib/metrics.js
+OK   - existe aura-frontend\src\App.jsx
+OK   - existe aura-frontend\src\components\Sidebar.jsx
+OK   - App.jsx importa AdminDashboard
+OK   - App.jsx registra path="/admin" con requiredRole="admin" renderizando <AdminDashboard />
+OK   - App.jsx NO registra una ruta /admin/dashboard separada (OQ1: se reclamó /admin directamente)
+OK   - App.jsx conserva /admin/users -> UsersPage sin tocar
+OK   - Sidebar.jsx tiene exactamente un ítem con label 'Dashboard' (encontrados: 1)
+OK   - Sidebar.jsx: el ítem 'Dashboard' apunta a /admin (sin relabel a 'Clientes' — no hizo falta, OQ1)
+OK   - AdminPanel.jsx no existe (ya reemplazado por UsersPage.jsx antes de este change) y este change no lo reintrodujo
+--- 6.3 package.json sin dependencias nuevas ---
+OK   - existe aura-frontend\package.json
+OK   - sin dependencias nuevas en "dependencies" (agregadas: ninguna)
+OK   - ninguna dependencia existente fue removida (faltantes: ninguna)
+
+TODOS LOS CHECKS PASARON
+---
+Exit code: 0

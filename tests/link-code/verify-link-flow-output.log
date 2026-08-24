@@ -1,0 +1,77 @@
+Corrida: 2026-08-19T01:17:03Z
+Comando: node tests/link-code/verify-link-flow.js
+---
+--- (a) Auditoría de codigo.json ---
+OK   - codigo.json parsea como JSON
+OK   - recuento de nodos = 232 (esperado 232)
+OK   - existe el nodo "IF - Vinculacion Telegram"
+OK   - IF - Vinculacion Telegram es n8n-nodes-base.if v2.3
+OK   - IF - Vinculacion Telegram recibe entrada desde Code in JavaScript7 (Code in JavaScript7)
+OK   - IF - Vinculacion Telegram main[0] (TRUE = /start) → HTTP - Validar codigo
+OK   - IF - Vinculacion Telegram main[1] (FALSE = normal) → HTTP - Chequear vinculacion
+OK   - existe el nodo "HTTP - Validar codigo"
+OK   - HTTP - Validar codigo es n8n-nodes-base.httpRequest v4.4
+OK   - HTTP - Validar codigo es GET
+OK   - HTTP - Validar codigo consulta telegram_link_codes con code=eq.<código> & used_at=is.null & expires_at=gt.<now>
+OK   - HTTP - Validar codigo usa authentication=genericCredentialType + httpHeaderAuth + sendHeaders no-true (n8n omite el default false al exportar)
+OK   - HTTP - Validar codigo referencia la credencial httpHeaderAuth "Supabase Service Role"
+OK   - HTTP - Validar codigo lleva retry 3×1000 a nivel de nodo
+OK   - existe el nodo "IF - Codigo valido"
+OK   - IF - Codigo valido es n8n-nodes-base.if v2.3
+OK   - IF - Codigo valido evalúa ={{ !!$json.id }} con operator boolean "true"
+OK   - IF - Codigo valido no lleva retry
+OK   - existe el nodo "Telegram - Codigo valido"
+OK   - Telegram - Codigo valido es n8n-nodes-base.telegram v1.2
+OK   - Telegram - Codigo valido envía al id_chat de Code in JavaScript7
+OK   - Telegram - Codigo valido envía el mensaje de código válido
+OK   - Telegram - Codigo valido usa la credencial telegramApi "Telegram account"
+OK   - Telegram - Codigo valido no lleva retry
+OK   - existe el nodo "Telegram - Codigo invalido"
+OK   - Telegram - Codigo invalido es n8n-nodes-base.telegram v1.2
+OK   - Telegram - Codigo invalido envía al id_chat de Code in JavaScript7
+OK   - Telegram - Codigo invalido envía el mensaje de código inválido
+OK   - Telegram - Codigo invalido usa la credencial telegramApi "Telegram account"
+OK   - Telegram - Codigo invalido no lleva retry
+OK   - HTTP - Validar codigo main[0] → IF - Codigo valido
+OK   - IF - Codigo valido main[0] (TRUE = válido) → Telegram - Codigo valido
+OK   - IF - Codigo valido main[1] (FALSE = inválido) → Telegram - Codigo invalido
+OK   - Telegram - Codigo valido no tiene aristas salientes (rama termina)
+OK   - Telegram - Codigo invalido no tiene aristas salientes (rama termina)
+OK   - la rama de validación no alimenta Code - Generar código ni HTTP Request1
+OK   - HTTP - Chequear vinculacion conserva su URL (referencia a Code in JavaScript7)
+OK   - HTTP - Chequear vinculacion sigue alimentando Code in JavaScript9 (flujo normal intacto)
+OK   - HTTP Request1 conserva sin retry (D5 de error-handling)
+OK   - IF - Ya vinculado conserva outputs (Redis27 / Code - Generar código)
+
+--- (b) Auditoría de la migración ---
+OK   - existe aura-frontend\supabase\migrations\20260814000001_telegram_link_codes_reproducible.sql
+OK   - la migración contiene CREATE TABLE IF NOT EXISTS public.telegram_link_codes
+OK   - la migración contiene el CHECK de exactamente 6 caracteres sobre code
+OK   - la migración contiene el índice idx_telegram_link_codes_expires sobre expires_at
+OK   - la migración habilita ROW LEVEL SECURITY sin políticas
+OK   - la migración contiene CREATE OR REPLACE FUNCTION public.link_telegram_with_code(p_code text)
+OK   - el RPC es SECURITY DEFINER con search_path = public
+OK   - el RPC busca code = p_code AND used_at IS NULL AND expires_at > now()
+OK   - el RPC vincula profiles.telegram_chat_id al chat_id del código para auth.uid()
+OK   - el RPC marca el código como usado (used_at = now())
+OK   - la migración contiene GRANT EXECUTE ... TO authenticated
+OK   - la migración no toca telegram_link_tokens (solo documentación)
+
+--- (c) No regresión ---
+OK   - sin secretos literales en codigo.json (eyJ=0, Bearer =0, apikey=0)
+OK   - supabase.co aparece 13 veces (10 previas + 3 por los emisores usage_events)
+OK   - cadena ClamAV conserva nodo «IF - Límite de tamaño PDF»
+OK   - cadena ClamAV conserva nodo «Escaneo ClamAV»
+OK   - cadena ClamAV conserva nodo «IF - PDF limpio»
+OK   - cadena ClamAV conserva nodo «PDF muy grande»
+OK   - cadena ClamAV conserva nodo «PDF rechazado»
+OK   - HTTP - Chequear vinculacion conserva retry 3×1000 (política de lecturas)
+OK   - 0 nodos con claves de retry dentro de parameters (formato real de n8n: nivel de nodo; 0)
+OK   - Telegram - Token invalido1 conserva la credencial telegramApi "Telegram account"
+OK   - Redis13 conserva expire:true + ttl 86400 (redis-expiration)
+OK   - nodo "Redis - Expirar fotos" conservado (redis-expiration)
+OK   - bloque connections coherente (0 aristas apuntando a nodos inexistentes)
+
+Todas las verificaciones pasaron.
+---
+Exit code: 0

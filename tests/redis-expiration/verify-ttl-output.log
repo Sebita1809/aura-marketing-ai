@@ -1,0 +1,89 @@
+Corrida: 2026-08-19T01:17:03Z
+Comando: node tests/redis-expiration/verify-ttl.js
+---
+--- (a) Auditoría estática de codigo.json ---
+OK   - codigo.json parsea como JSON
+OK   - hay 53 nodos redis (esperado 53)
+OK   - recuento de nodos = 232 (esperado 232)
+OK   - los nodos `set` coinciden con la auditoría (31): Redis - Estado descripcion, Redis - Estado fecha personalizada, Redis - Estado plataformas, Redis - Estado programacion, Redis - Estado publicidad existente, Redis - Guardar descripcion, Redis - Guardar imagen limpia, Redis - Guardar integraciones, Redis - Guardar media existente, Redis - Guardar programacion, Redis - Guardar seleccion, Redis - Init seleccion, Redis11, Redis12, Redis13, Redis18, Redis19, Redis20, Redis22, Redis23, Redis25, Redis26, Redis28, Redis3, Redis32, Redis33, Redis35, Redis36, Redis4, Redis5, Redis9
+OK   - nodo Redis36 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis35 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis33 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis32 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis26 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis25 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis20 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis22 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis19 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis18 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis12 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis11 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis9 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis13 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Estado descripcion (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis28 (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Estado programacion (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Estado fecha personalizada (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Estado plataformas (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Estado publicidad existente (chat_) tiene expire:true y ttl:86400
+OK   - nodo Redis23 (especificaciones_) tiene expire:true y ttl:86400
+OK   - nodo Redis3 (especificaciones_) tiene expire:true y ttl:86400
+OK   - nodo Redis5 (especificaciones_rehacer_) tiene expire:true y ttl:86400
+OK   - nodo Redis4 (publicidad_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Guardar descripcion (descripcion_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Guardar imagen limpia (imagen_raw_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Guardar programacion (programacion_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Guardar integraciones (integraciones_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Init seleccion (plataformas_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Guardar seleccion (plataformas_) tiene expire:true y ttl:86400
+OK   - nodo Redis - Guardar media existente (media_existente_) tiene expire:true y ttl:86400
+OK   - 0 escrituras `set` sin expiración (0)
+OK   - Redis13 mantiene operation "set"
+OK   - Redis13 sigue escribiendo el valor vacío
+OK   - Redis13 lleva expire:true + ttl de la familia chat_
+OK   - lectura Redis27 no tiene expire/ttl
+OK   - lectura Redis27 mantiene operation get
+OK   - lectura Redis27 mantiene su patrón de clave
+OK   - lectura Redis27 conserva la credencial redis
+OK   - lectura Redis - Get foto publicidad postiz no tiene expire/ttl
+OK   - lectura Redis - Get foto publicidad postiz mantiene operation get
+OK   - lectura Redis - Get foto publicidad postiz mantiene su patrón de clave
+OK   - lectura Redis - Get foto publicidad postiz conserva la credencial redis
+OK   - lectura Redis24 no tiene expire/ttl
+OK   - lectura Redis24 mantiene operation get
+OK   - lectura Redis24 mantiene su patrón de clave
+OK   - lectura Redis24 conserva la credencial redis
+OK   - lectura Redis - Get descripcion no tiene expire/ttl
+OK   - lectura Redis - Get descripcion mantiene operation get
+OK   - lectura Redis - Get descripcion mantiene su patrón de clave
+OK   - lectura Redis - Get descripcion conserva la credencial redis
+OK   - lectura Redis7 no tiene expire/ttl
+OK   - lectura Redis7 mantiene operation llen
+OK   - lectura Redis7 mantiene su patrón de clave
+OK   - lectura Redis7 conserva la credencial redis
+OK   - lectura Redis8 no tiene expire/ttl
+OK   - lectura Redis8 mantiene operation pop
+OK   - lectura Redis8 mantiene su patrón de clave
+OK   - lectura Redis8 conserva la credencial redis
+OK   - existe el nodo "Redis - Expirar fotos"
+OK   - tipo del nodo = @fancyheat/n8n-nodes-redis-enhanced.redisEnhanced (community node Redis Enhanced)
+OK   - typeVersion = 1 (1)
+OK   - operación = expire
+OK   - key = =fotos_{{ $('Code in JavaScript7').item.json.id_chat }} (mismo patrón que Redis6)
+OK   - seconds/ttl = 86400 (TTL_FOTOS)
+OK   - referencia la credencial redis (misma que Redis6)
+OK   - «Send a text message7» sigue recibiendo la salida de Redis6
+OK   - Redis - Expirar fotos es alcanzable como fan-out de Redis6
+OK   - la salida de Redis - Expirar fotos no es consumida (sumidero colgante)
+OK   - bloque connections coherente (0 aristas apuntando a nodos inexistentes)
+
+--- (b) Simulación SET+EXPIRE contra un mock en memoria ---
+OK   - client.expire devuelve 1 sobre la clave recién escrita
+OK   - TTL restante = 86400 s (constante 86400)
+OK   - la clave se puede leer mientras no expiró
+OK   - re-escritura re-arma el TTL completo (86400 s, antes -1 s)
+OK   - la clave se reporta expirada y desaparece tras el TTL
+
+Todas las verificaciones pasaron.
+---
+Exit code: 0

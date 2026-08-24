@@ -6832,6 +6832,54 @@
     },
     {
       "parameters": {
+        "content": "## 🏷️ Verificación de marca registrada en imagen generada\n\nDespues de que Gemini genera o edita la imagen publicitaria, se vuelve a analizar la imagen resultante en busca de marcas/logos de terceros no autorizados. Si detecta una marca, alerta al admin y rechaza la entrega al usuario; si hay un error al parsear el veredicto, se rechaza igual por precaucion. Si no detecta nada, sigue al post-procesamiento normal (marca de agua).\n\n_(6 nodos)_",
+        "height": 480,
+        "width": 1900,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        137800,
+        233820
+      ],
+      "id": "8679e407-724b-4fbf-a841-0ff910f39169",
+      "name": "Sticky - marca_imagen_generada"
+    },
+    {
+      "parameters": {
+        "content": "## 🔔 Confirmacion de sobrescritura de producto — disparo\n\nCuando el usuario carga un producto (via Sheets, PDF o foto) que ya existe en el catalogo, en vez de sobrescribirlo directo se calcula el diff de campos que cambiarian, se guarda el upsert como pendiente en Redis y se le pide confirmacion explicita antes de aplicar el cambio.\n\n_(5 nodos)_",
+        "height": 700,
+        "width": 1550,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        143850,
+        236700
+      ],
+      "id": "0a36fa13-4904-41d3-999f-35329e35b94a",
+      "name": "Sticky - confirmacion_sobrescritura"
+    },
+    {
+      "parameters": {
+        "content": "## ✅ Confirmacion de sobrescritura de producto — respuesta\n\nProcesa la respuesta del usuario a la confirmacion de sobrescritura (via el dispatcher/Switch3): si confirma, ejecuta el upsert pendiente guardado en Redis y limpia el estado; si cancela, descarta el pendiente y avisa. Cubre tambien el caso sin pendiente activo.\n\n_(10 nodos)_",
+        "height": 650,
+        "width": 3050,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        132350,
+        237700
+      ],
+      "id": "b6fb6dec-58d0-4306-a5c1-d0d745298f9b",
+      "name": "Sticky - confirmacion_sobrescritura_respuesta"
+    },
+    {
+      "parameters": {
         "jsCode": "// Lista curada de marcas de terceros conocidas, agrupadas por categoria, con un\n// descriptor generico por categoria (feature: brand-hardening, 2026-08-23).\n// No es exhaustiva -- es la misma logica \"capa barata determinista\" que ya usa\n// el gate de prompt injection (Filtro heuristico injection): cubre los casos\n// mas comunes en publicidad de redes sociales (moda/calzado deportivo, bebidas,\n// comida rapida, tecnologia, indumentaria/lujo, autos). Ampliable sin tocar el\n// resto del flujo.\n//\n// Cada marca agrupa sus variantes de ESCRITURA (ej: 'coca-cola'/'coca cola' es\n// UNA sola marca, no dos) -- necesario para la desambiguacion de mas abajo.\nconst BRAND_CATEGORIES = [\n  { categoria: 'deportivo', descriptor: 'estilo deportivo', marcas: [\n    { canon: 'nike', variants: ['nike'] },\n    { canon: 'adidas', variants: ['adidas'] },\n    { canon: 'puma', variants: ['puma'] },\n    { canon: 'reebok', variants: ['reebok'] },\n    { canon: 'new balance', variants: ['new balance'] },\n    { canon: 'converse', variants: ['converse'] },\n    { canon: 'vans', variants: ['vans'] },\n    { canon: 'under armour', variants: ['under armour'] },\n    { canon: 'fila', variants: ['fila'] },\n    { canon: 'skechers', variants: ['skechers'] },\n    { canon: 'topper', variants: ['topper'] },\n    { canon: 'umbro', variants: ['umbro'] },\n    { canon: 'asics', variants: ['asics'] },\n    { canon: 'kappa', variants: ['kappa'] }\n  ] },\n  { categoria: 'gaseosa', descriptor: 'estilo gaseosa genérica', marcas: [\n    { canon: 'coca-cola', variants: ['coca-cola', 'coca cola'] },\n    { canon: 'pepsi', variants: ['pepsi'] },\n    { canon: 'sprite', variants: ['sprite'] },\n    { canon: 'fanta', variants: ['fanta'] },\n    { canon: '7up', variants: ['seven up', '7up'] },\n    { canon: 'mirinda', variants: ['mirinda'] },\n    { canon: 'manaos', variants: ['manaos'] },\n    { canon: 'paso de los toros', variants: ['paso de los toros'] }\n  ] },\n  { categoria: 'comida_rapida', descriptor: 'estilo comida rápida genérica', marcas: [\n    { canon: 'mcdonalds', variants: ['mcdonalds', \"mcdonald's\", 'mcdonald'] },\n    { canon: 'big mac', variants: ['big mac'] },\n    { canon: 'burger king', variants: ['burger king'] },\n    { canon: 'whopper', variants: ['whopper'] },\n    { canon: 'kfc', variants: ['kfc'] },\n    { canon: 'subway', variants: ['subway'] },\n    { canon: 'starbucks', variants: ['starbucks'] },\n    { canon: 'dominos', variants: [\"domino's\", 'dominos'] },\n    { canon: 'pizza hut', variants: ['pizza hut'] },\n    { canon: \"wendy's\", variants: [\"wendy's\", 'wendys'] }\n  ] },\n  { categoria: 'tecnologia', descriptor: 'estilo tecnológico genérico', marcas: [\n    { canon: 'apple', variants: ['apple', 'iphone', 'ipad', 'macbook'] },\n    { canon: 'samsung', variants: ['samsung'] },\n    { canon: 'xiaomi', variants: ['xiaomi'] },\n    { canon: 'huawei', variants: ['huawei'] },\n    { canon: 'google', variants: ['google'] },\n    { canon: 'microsoft', variants: ['microsoft'] },\n    { canon: 'sony', variants: ['sony'] },\n    { canon: 'nintendo', variants: ['nintendo'] },\n    { canon: 'playstation', variants: ['playstation'] },\n    { canon: 'xbox', variants: ['xbox'] },\n    { canon: 'motorola', variants: ['motorola'] }\n  ] },\n  { categoria: 'moda', descriptor: 'estilo moda genérico', marcas: [\n    { canon: 'zara', variants: ['zara'] },\n    { canon: 'h&m', variants: ['h&m'] },\n    { canon: 'levis', variants: ['levis', \"levi's\"] },\n    { canon: 'gucci', variants: ['gucci'] },\n    { canon: 'louis vuitton', variants: ['louis vuitton'] },\n    { canon: 'chanel', variants: ['chanel'] },\n    { canon: 'rolex', variants: ['rolex'] },\n    { canon: 'ray-ban', variants: ['ray-ban', 'ray ban'] },\n    { canon: 'prada', variants: ['prada'] },\n    { canon: 'versace', variants: ['versace'] }\n  ] },\n  { categoria: 'autos', descriptor: 'estilo vehículo genérico', marcas: [\n    { canon: 'toyota', variants: ['toyota'] },\n    { canon: 'ford', variants: ['ford'] },\n    { canon: 'chevrolet', variants: ['chevrolet'] },\n    { canon: 'bmw', variants: ['bmw'] },\n    { canon: 'mercedes', variants: ['mercedes', 'mercedes-benz'] },\n    { canon: 'volkswagen', variants: ['volkswagen'] },\n    { canon: 'honda', variants: ['honda'] },\n    { canon: 'fiat', variants: ['fiat'] },\n    { canon: 'renault', variants: ['renault'] },\n    { canon: 'peugeot', variants: ['peugeot'] },\n    { canon: 'citroen', variants: ['citroen'] }\n  ] }\n];\n\nfunction escapeRegex(s) {\n  return s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n}\n\nfunction buildVariantPattern(variant) {\n  // Espacios/guiones intercambiables (ej: \"coca-cola\" matchea \"coca cola\" y viceversa),\n  // limites de palabra en ambos extremos, case-insensitive.\n  const escaped = escapeRegex(variant).replace(/[\\s-]+/g, '[\\\\s-]+');\n  return new RegExp('\\\\b' + escaped + '\\\\b', 'gi');\n}\n\n// Reemplaza cada mencion de marca conocida por \"<descriptor de categoria>\"\n// (mas un numero si el mismo pedido compara/sustituye 2+ marcas DISTINTAS de\n// la misma categoria -- ver comentario en BRAND_CATEGORIES) para que el\n// pedido siga siendo entendible por la IA (que producto/estetica queria) sin\n// nunca pasarle el nombre real de una marca. Determinista, sin LLM.\n//\n// bug encontrado probando en vivo (2026-08-23): antes, TODAS las marcas de\n// una categoria compartian el mismo descriptor sin distincion -- comparar dos\n// marcas distintas de la misma categoria en un pedido (ej: \"una Fanta en vez\n// de una Coca-Cola\") colapsaba ambas al mismo texto, produciendo \"una estilo\n// gaseosa generica en vez de una estilo gaseosa generica\" (ademas de perder\n// el sentido, ese texto degenerado disparo un falso positivo en el\n// clasificador de injection en produccion). Ahora se numera cada marca\n// CANONICA distinta (agrupando variantes de escritura de una misma marca,\n// que no cuentan como \"distintas\") en el orden en que aparece en el texto.\nfunction replaceKnownBrands(text) {\n  let result = String(text || '');\n  const marcasDetectadas = [];\n\n  for (const { categoria, descriptor, marcas } of BRAND_CATEGORIES) {\n    const encontradas = [];\n    for (const { canon, variants } of marcas) {\n      let primerIndex = -1;\n      for (const variant of variants) {\n        const m = buildVariantPattern(variant).exec(result);\n        if (m && (primerIndex === -1 || m.index < primerIndex)) primerIndex = m.index;\n      }\n      if (primerIndex !== -1) encontradas.push({ canon, variants, index: primerIndex });\n    }\n    if (encontradas.length === 0) continue;\n\n    encontradas.sort((a, b) => a.index - b.index);\n    const necesitaNumerar = encontradas.length > 1;\n\n    encontradas.forEach(({ canon, variants }, idx) => {\n      const etiqueta = necesitaNumerar ? (descriptor + ' (opción ' + (idx + 1) + ')') : descriptor;\n      for (const variant of variants) {\n        result = result.replace(buildVariantPattern(variant), etiqueta);\n      }\n      marcasDetectadas.push({ marca: canon, categoria });\n    });\n  }\n\n  return { textoFiltrado: result, marcasDetectadas };\n}\n\n// brand-hardening: reemplaza marcas conocidas en el texto libre del usuario\n// ANTES de que llegue a cualquier clasificador o a 'Generate an image', para que\n// la IA nunca reciba el nombre real de una marca de terceros en su prompt.\nconst item = $input.first();\nconst { textoFiltrado, marcasDetectadas } = replaceKnownBrands(item.json.text || '');\n\nreturn [{\n  json: {\n    ...item.json,\n    text: textoFiltrado,\n    marcasFiltradas: marcasDetectadas\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
@@ -7710,7 +7758,7 @@
       "typeVersion": 1.2,
       "position": [
         137676,
-        231948
+        232400
       ],
       "id": "9f789a04-e132-4852-89ef-f4618c523b10",
       "name": "Rechazado - producto no identificado en imagen",

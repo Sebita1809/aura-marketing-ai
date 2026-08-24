@@ -1,0 +1,85 @@
+Corrida: 2026-08-19T01:18:50Z
+Comando: npm test (dentro de aura-frontend/)
+---
+
+> aura-frontend@0.0.0 test
+> node --test --test-reporter spec --test-reporter-destination stdout src/**/*.test.js supabase/functions/**/*.test.js
+
+✔ validateName: nombre válido no da error (0.9594ms)
+✔ validateName: nombre vacío o muy corto da error (0.2184ms)
+✔ validateName: límites inclusive (NAME_MIN y NAME_MAX) (1.035ms)
+✔ validateEmail: correo válido no da error (0.254ms)
+✔ validateEmail: formato inválido da "Ingresá un correo válido." (0.2067ms)
+✔ validateMessage: mensaje corto da error indicando el mínimo (0.1575ms)
+✔ validateMessage: límites inclusive (MESSAGE_MIN y MESSAGE_MAX) (0.1379ms)
+✔ validateContactPayload: campo faltante -> valid false (spec: no invoca la Edge Function) (0.1609ms)
+✔ validateContactPayload: payload completo válido -> valid true (0.2276ms)
+✔ normalizeProductData devuelve el mismo array si ya es array (2.1731ms)
+✔ normalizeProductData envuelve un objeto suelto en un array de 1 (caso heredado imagen) (0.9302ms)
+✔ normalizeProductData convierte null en array vacío (1.6493ms)
+✔ normalizeProductData convierte undefined en array vacío (0.3039ms)
+✔ pickProductFields destaca producto/precio/detalle (rama imagen) (0.6822ms)
+✔ pickProductFields destaca "nombre del producto"/precio/descripcion y deja el resto como extra (rama PDF) (0.3589ms)
+✔ pickProductFields no rompe con un item de claves totalmente desconocidas (rama texto libre) (0.3833ms)
+✔ pickProductFields nunca incluye "id" en extra (0.4309ms)
+✔ nextTicketStatus: open -> answered cuando responde un admin (3.4569ms)
+✔ nextTicketStatus: answered -> open cuando responde el usuario (0.3398ms)
+✔ nextTicketStatus: open + mensaje de user se queda en open (no retrocede) (0.3086ms)
+✔ nextTicketStatus: answered + mensaje de admin se queda en answered (0.2407ms)
+✔ nextTicketStatus: closed nunca cambia, ni con user ni con admin (0.2844ms)
+✔ countUnread para un usuario cuenta solo mensajes de admin no leídos (0.3673ms)
+✔ countUnread para un admin cuenta solo mensajes de user no leídos (0.2575ms)
+✔ countUnread sobre lista vacía da 0 (0.3184ms)
+✔ countUnread cuando todo está leído da 0 (0.3055ms)
+✔ sortByLastActivity ordena de más reciente a más antiguo (1.8007ms)
+✔ sortByLastActivity no muta el array original (0.3054ms)
+✔ normalizeSupportError mapea violación de RLS a mensaje de permisos (0.3833ms)
+✔ normalizeSupportError mapea violación de CHECK a mensaje de datos inválidos (0.2348ms)
+✔ normalizeSupportError da un mensaje genérico ante un error desconocido (0.1867ms)
+✔ normalizeSupportError no rompe si el error es null/undefined (0.1758ms)
+✔ aggregateUsage sobre lista vacía da todo en cero, sin romper (2.0525ms)
+✔ aggregateUsage cuenta totales por event_type (0.3974ms)
+✔ aggregateUsage desglosa post_published por plataforma, con las 5 siempre presentes (0.3399ms)
+✔ aggregateUsage cuenta post_scheduled con scheduled_for futuro como pendiente (0.4321ms)
+✔ aggregateUsage NO cuenta post_scheduled con scheduled_for ya pasado como pendiente (0.4047ms)
+✔ aggregateUsage ignora event_type desconocidos sin romper (contrato aditivo, D2) (0.3016ms)
+✔ aggregateUsage filtra por rango cuando se pasa desde/hasta (0.3657ms)
+✔ validateName: nombre válido no da error (1.1328ms)
+✔ validateName: nombre vacío da error (0.201ms)
+✔ validateName: nombre de 1 char (bajo el mínimo) da error (0.1556ms)
+✔ validateName: nombre de exactamente NAME_MIN es válido (límite inclusive) (0.1185ms)
+✔ validateName: nombre de exactamente NAME_MAX es válido (límite inclusive) (0.144ms)
+✔ validateName: nombre de NAME_MAX + 1 da error (0.0991ms)
+✔ validateName: undefined/null dan error sin explotar (0.1024ms)
+✔ validateEmail: correo válido no da error (0.2035ms)
+✔ validateEmail: formato inválido da error (0.176ms)
+✔ validateEmail: vacío da error (0.2122ms)
+✔ validateEmail: excede EMAIL_MAX da error (0.1248ms)
+✔ validateMessage: mensaje válido no da error (0.1847ms)
+✔ validateMessage: mensaje corto (< MESSAGE_MIN) da error (0.0934ms)
+✔ validateMessage: mensaje de exactamente MESSAGE_MIN es válido (0.1407ms)
+✔ validateMessage: mensaje de exactamente MESSAGE_MAX es válido (0.077ms)
+✔ validateMessage: mensaje de MESSAGE_MAX + 1 da error (1.0682ms)
+✔ validateContactPayload: payload completo y válido -> valid true (0.9702ms)
+✔ validateContactPayload: falta message -> valid false con error (0.1214ms)
+✔ validateContactPayload: payload vacío/undefined no explota (0.0963ms)
+✔ isHoneypotFilled: company vacío o ausente -> false (humano) (0.106ms)
+✔ isHoneypotFilled: company con contenido -> true (bot) (0.0729ms)
+✔ escapeHtml: escapa & < > " ' (0.1409ms)
+✔ escapeHtml: texto plano sin caracteres especiales queda igual (0.0571ms)
+✔ escapeHtml: neutraliza intento de inyección de script (0.056ms)
+✔ sanitizeHeaderValue: elimina saltos de línea usados para inyectar headers (0.1019ms)
+✔ sanitizeHeaderValue: texto normal queda intacto (0.049ms)
+✔ sanitizeHeaderValue: elimina caracteres de control (0.0669ms)
+✔ extractClientIp: toma la primera IP de x-forwarded-for (0.0764ms)
+✔ extractClientIp: header ausente -> unknown (0.0448ms)
+ℹ tests 68
+ℹ suites 0
+ℹ pass 68
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 200.489
+---
+Exit code: 0

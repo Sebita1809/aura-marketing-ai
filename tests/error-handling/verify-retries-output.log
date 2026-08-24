@@ -1,0 +1,128 @@
+Corrida: 2026-08-19T01:17:03Z
+Comando: node tests/error-handling/verify-retries.js
+---
+OK   - codigo.json parsea como JSON
+--- (a) Auditoría de retries en codigo.json ---
+OK   - todos los nodos reintentados existen en codigo.json (62)
+OK   - nodo Analyze document tiene retryOnFail:true, maxTries:3, waitBetweenTries:3000 a nivel de nodo
+OK   - nodo Analyze an image tiene retryOnFail:true, maxTries:3, waitBetweenTries:3000 a nivel de nodo
+OK   - nodo Generate an image tiene retryOnFail:true, maxTries:3, waitBetweenTries:3000 a nivel de nodo
+OK   - nodo Edit an image tiene retryOnFail:true, maxTries:3, waitBetweenTries:3000 a nivel de nodo
+OK   - nodo Google Gemini Chat Model1 tiene retryOnFail:true, maxTries:3, waitBetweenTries:3000 a nivel de nodo
+OK   - nodo AI Agent1 tiene retryOnFail:true, maxTries:3, waitBetweenTries:3000 a nivel de nodo
+OK   - nodo Moderar video Gemini tiene retryOnFail:true, maxTries:3, waitBetweenTries:3000 a nivel de nodo
+OK   - nodo Moderar imagen Gemini tiene retryOnFail:true, maxTries:3, waitBetweenTries:3000 a nivel de nodo
+OK   - nodo HTTP - Leer producto informacion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Leer producto imagen tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Chequear vinculacion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Perfil publicacion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Cuenta Instagram publicacion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Validar codigo tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Upsert producto informacion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Upsert producto pdf tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Upsert producto imagen tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Subir imagen Postiz tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo HTTP - Subir media existente Postiz tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Telegram - Elegir plataformas tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Edit - Teclado plataformas tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Get a file tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Get a file2 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Telegram Get a file publicacion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Telegram - Get a file media existente tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Telegram Get a file media existente publicacion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis36 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis35 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis33 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis32 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis5 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis4 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis26 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis25 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis20 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis23 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis22 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis19 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis18 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis12 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis11 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis9 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis6 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis3 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis13 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Estado descripcion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Guardar descripcion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis28 tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Expirar fotos tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Guardar imagen limpia tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Estado programacion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Estado fecha personalizada tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Guardar programacion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Guardar integraciones tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Init seleccion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Estado plataformas tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Guardar seleccion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Estado publicidad existente tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Guardar media existente tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Get imagen limpia tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Borrar descripcion tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - nodo Redis - Borrar media existente tiene retryOnFail:true, maxTries:3, waitBetweenTries:1000 a nivel de nodo
+OK   - 0 nodos reintentados sin la política esperada (0)
+OK   - los 8 nodos Gemini/modelo llevan waitBetweenTries:3000 (Analyze document, Analyze an image, Generate an image, Edit an image, Google Gemini Chat Model1, AI Agent1, Moderar video Gemini, Moderar imagen Gemini)
+OK   - excluido Telegram Trigger NO tiene claves de retry
+OK   - excluido Wait NO tiene claves de retry
+OK   - excluido Escaneo ClamAV NO tiene claves de retry
+OK   - excluido HTTP - Crear post Postiz NO tiene claves de retry
+OK   - excluido HTTP Request1 NO tiene claves de retry
+OK   - excluido Get row(s) in sheet in Google Sheets NO tiene claves de retry
+OK   - 0 nodos excluidos con retry (0)
+OK   - hay 47 nodos Telegram SEND/edit excluidos (esperado 47)
+OK   - ningún nodo Telegram SEND/edit lleva retry
+OK   - el conjunto de nodos con retryOnFail coincide exactamente con la lista (62/62)
+OK   - todos los 62 nodos de la lista llevan retryOnFail:true
+OK   - «Escaneo ClamAV» conserva onError = continueErrorOutput
+OK   - «Escaneo ClamAV» conserva timeout 60000
+OK   - HTTP - Leer producto informacion conserva alwaysOutputData:true
+OK   - HTTP - Leer producto imagen conserva alwaysOutputData:true
+OK   - HTTP - Chequear vinculacion conserva alwaysOutputData:true
+OK   - Redis3 conserva alwaysOutputData:false
+OK   - hay 33 nodos Redis de escritura (esperado 33)
+OK   - los 33 nodos Redis de escritura conservan operación, expire/ttl y credencial redis
+OK   - hay 21 nodos Redis de lectura (esperado 21)
+OK   - ningún nodo Redis de lectura lleva expire/ttl (salvo los 5 `incr` de rate-limiting, con ttl dinámico propio)
+OK   - los nodos Redis de lectura llevan retry si y solo si están en la excepción confirmada (Redis - Get imagen limpia, Redis - Borrar descripcion, Redis - Borrar media existente)
+OK   - hay 16 nodos HTTP con genericAuthType httpHeaderAuth (esperado 16)
+OK   - los 16 nodos migrados conservan authentication=genericCredentialType + credencial httpHeaderAuth
+
+--- (b) Integridad de codigo.json ---
+OK   - recuento de nodos = 232 (esperado 232)
+OK   - bloque connections coherente (0 aristas apuntando a nodos inexistentes)
+OK   - sin secretos literales en codigo.json (eyJ=0, Bearer =0, apikey=0)
+OK   - supabase.co aparece 13 veces (10 previas + 3 por los emisores usage_events)
+OK   - sin referencias stale de bug-fixes (Redis1/Redis10/Redis21, Math.random)
+OK   - pinData vacío
+OK   - 0 nodos con claves de retry dentro de parameters (formato real de n8n: nivel de nodo; 0)
+OK   - cadena ClamAV conserva nodo «IF - Límite de tamaño PDF»
+OK   - cadena ClamAV conserva nodo «Escaneo ClamAV»
+OK   - cadena ClamAV conserva nodo «IF - PDF limpio»
+OK   - cadena ClamAV conserva nodo «PDF muy grande»
+OK   - cadena ClamAV conserva nodo «PDF rechazado»
+
+--- (c) Capa 2: error-workflow.json ---
+OK   - error-workflow.json parsea como JSON
+OK   - error-workflow.json tiene 3 nodos (esperado 3)
+OK   - contiene 1 nodo n8n-nodes-base.errorTrigger
+OK   - contiene 1 nodo n8n-nodes-base.code
+OK   - contiene 1 nodo n8n-nodes-base.telegram
+OK   - nodo Code extrae chat_id con fallback DEFAULT_ADMIN_CHAT_ID
+OK   - nodo Code prueba $json.id_chat primero
+OK   - nodo Code cubre el caso legacy node.data[0].json.chat.id
+OK   - mensaje al usuario instruye reintentar con /start
+OK   - mensaje al admin incluye executionId
+OK   - nodo Telegram reutiliza la credencial «Telegram account» (telegramApi)
+OK   - nodo Telegram consume chatId/text del nodo Code
+OK   - errorTrigger main → nodo Code
+OK   - nodo Code main → nodo Telegram sendMessage
+
+Todas las verificaciones pasaron.
+---
+Exit code: 0

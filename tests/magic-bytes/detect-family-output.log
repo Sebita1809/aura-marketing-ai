@@ -1,0 +1,22 @@
+Corrida: 2026-08-19T01:18:45Z
+Comando: node tests/magic-bytes/detect-family.test.js
+---
+PASS  PDF válido (%PDF-1.4 ...)
+PASS  JPEG válido (FF D8 FF E0 ...)
+PASS  PNG válido (89 50 4E 47 0D 0A 1A 0A ...)
+PASS  GIF válido (GIF89a)
+PASS  GIF válido (GIF87a)
+PASS  WEBP válido (RIFF....WEBP)
+PASS  MP4 válido (ISO-BMFF, ftyp en offset 4)
+PASS  MOV válido (ISO-BMFF, ftyp en offset 4, brand qt)
+PASS  WebM/Matroska válido (1A 45 DF A3)
+PASS  Contra-caso: ejecutable Windows PE (4D 5A) disfrazado
+PASS  Contra-caso: ZIP (50 4B 03 04) — también cubre .docx/.xlsx/.apk
+PASS  Contra-caso: texto plano
+PASS  Contra-caso: binario vacío
+PASS  Contra-caso: buffer más corto que cualquier firma conocida
+PASS  Contra-caso: RIFF sin WEBP en offset 8 (p.ej. WAV, AVI RIFF)
+
+15/15 casos OK, 0 fallidos.
+---
+Exit code: 0

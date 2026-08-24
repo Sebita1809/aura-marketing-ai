@@ -57,3 +57,4 @@ assets/*.png
 # tests/ SI se sube al repo (evidencia real de testing) -- excepto backups
 # comprimidos de carpetas que ya estan versionadas sueltas.
 tests/**/*.zip
+!tests/**/*.log

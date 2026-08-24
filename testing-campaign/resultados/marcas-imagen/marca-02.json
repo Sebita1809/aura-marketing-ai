@@ -1,0 +1,10 @@
+{
+  "id": "marca-02",
+  "categoria": "marcas-imagen",
+  "descripcion": "'una Adidas en vez de una Nike' (2 marcas, misma categoria)",
+  "esperado": "Ambas reemplazadas con 'opcion 1'/'opcion 2', sin colapsar",
+  "execution_id": "1383",
+  "evidencia": { "marcasFiltradas": [{"marca":"adidas","categoria":"deportivo"},{"marca":"nike","categoria":"deportivo"}], "datoSinMarca": "mejor que tenga puesto una estilo deportivo (opción 1) en vez de una estilo deportivo (opción 2)" },
+  "resultado_real": "Confirma la regresion del bug original: las 2 marcas de la misma categoria se numeraron correctamente en vez de colapsar al mismo texto. Imagen generada sin marca real.",
+  "pass": true
+}

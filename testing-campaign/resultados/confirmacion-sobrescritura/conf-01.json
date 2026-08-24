@@ -1,0 +1,10 @@
+{
+  "id": "conf-01",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Solo productos nuevos, catalogo existente sin conflictos",
+  "esperado": "Resumen 'X nuevos, 0 actualizados'",
+  "metodologia": "Probado directo contra product_catalog_diff_preview con el catalogo real del usuario (90 productos).",
+  "evidencia": { "resumen": {"nuevos": 1, "actualizados": 0, "radicales": 0, "total": 1} },
+  "resultado_real": "Producto con nombre que no existe en el catalogo clasificado correctamente como 'nuevo'.",
+  "pass": true
+}

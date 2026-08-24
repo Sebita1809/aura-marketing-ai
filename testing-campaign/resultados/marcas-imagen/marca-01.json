@@ -1,0 +1,11 @@
+{
+  "id": "marca-01",
+  "categoria": "marcas-imagen",
+  "descripcion": "'una gorra Nike' (deportivo)",
+  "esperado": "Prompt filtrado a generico, sin marca real",
+  "execution_id": "1381",
+  "evidencia": { "marcasFiltradas": [{"marca": "nike", "categoria": "deportivo"}], "datoSinMarca": "que en la foto aparezca alguien con una gorra estilo deportivo", "marca_detectada_en_imagen_resultante": false },
+  "resultado_real": "Nike reemplazado correctamente por 'estilo deportivo' antes de llegar a Gemini. La imagen generada tampoco disparo el chequeo de logo (no se coló ninguna marca real por otra via).",
+  "pass": true,
+  "notas": "Primer intento del test uso 'Generar publicidad' con un prompt totalmente ajeno al catalogo -- el bot genero un producto real del catalogo en su lugar (ignorando el prompt libre como tema principal, usandolo solo como detalle de estilo). Ajustado el approach: los tests de marcas se hacen agregando el detalle de marca sobre el producto que el bot ya eligio, via 'Rehacer'."
+}

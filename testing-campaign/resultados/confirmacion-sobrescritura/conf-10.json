@@ -1,0 +1,9 @@
+{
+  "id": "conf-10",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Precio con formato es-AR ('1.234,56') en el diff",
+  "esperado": "Delta de precio calculado correctamente, sin error (regresion del bug ya corregido)",
+  "evidencia": { "producto": "DUNK CHEESE SIMPLE", "precio_anterior": "$8.500", "precio_nuevo": "1.234,56", "delta_precio_pct": 85.5, "es_radical": true },
+  "resultado_real": "Formato es-AR completo (miles + decimales) parseado sin error: 8500 -> 1234.56 = 85.5% de caida, correctamente marcado radical. Confirma la regresion del bug original de esta sesion (malformed array literal) Y del bug de separador de miles encontrado hoy mismo en conf-02.",
+  "pass": true
+}

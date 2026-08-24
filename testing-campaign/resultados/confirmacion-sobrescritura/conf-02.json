@@ -1,0 +1,10 @@
+{
+  "id": "conf-02",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Producto existente con cambio de precio menor (<40%)",
+  "esperado": "Marcado 'actualizado', NO 'radical'",
+  "evidencia": { "producto": "DUNK CHEESE SIMPLE", "precio_anterior": "$8.500", "precio_nuevo": "9000", "delta_precio_pct": 5.9, "es_radical": false },
+  "resultado_real": "5.9% de cambio, correctamente NO marcado como radical (umbral 40%).",
+  "pass": true,
+  "notas": "Este test encontro el bug de separador de miles (ver bugfix migracion 20260824000000) -- primer intento dio delta 105782.4% por parsear '$8.500' como 8.5 en vez de 8500. Corregido y reverificado: ahora da 5.9% correctamente."
+}

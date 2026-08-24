@@ -1,0 +1,13 @@
+{
+  "id": "marca-09",
+  "categoria": "marcas-imagen",
+  "descripcion": "Marca dentro de una oracion larga y compleja",
+  "esperado": "Detectada y reemplazada correctamente",
+  "execution_id": "1401",
+  "evidencia": {
+    "filtro_texto": { "marcasFiltradas": [{"marca":"adidas","categoria":"deportivo"}], "datoSinMarca": "el cliente que está sentado en la mesa del fondo, cerca de la ventana, tiene puesta una remera estilo deportivo negra" },
+    "chequeo_imagen": { "detectada": true, "marca": "AFA", "motivo": "El hombre en el fondo lleva una camiseta con el logo de la AFA (Asociación del Fútbol Argentino) en el pecho." }
+  },
+  "resultado_real": "'Adidas' detectada y reemplazada correctamente pese a estar en medio de una oracion larga. El chequeo de imagen rechazo por una marca DISTINTA (logo de AFA en una remera de fondo) -- otra confirmacion de que la red de seguridad actua de forma general.",
+  "pass": true
+}

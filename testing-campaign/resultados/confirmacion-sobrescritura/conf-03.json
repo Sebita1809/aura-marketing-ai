@@ -1,0 +1,9 @@
+{
+  "id": "conf-03",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Producto existente con cambio de precio radical (>40%)",
+  "esperado": "Marcado 'radical' con motivo de precio",
+  "evidencia": { "producto": "DUNK CHEESE SIMPLE", "precio_anterior": "$8.500", "precio_nuevo": "3000", "delta_precio_pct": 64.7, "es_radical": true, "motivos": ["64.7% de cambio de precio"] },
+  "resultado_real": "64.7% de cambio, correctamente marcado como radical.",
+  "pass": true
+}

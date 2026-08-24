@@ -1,0 +1,10 @@
+{
+  "id": "marca-08",
+  "categoria": "marcas-imagen",
+  "descripcion": "Marca en mayusculas ('NIKE')",
+  "esperado": "Detectada igual, case-insensitive",
+  "execution_id": "1399",
+  "evidencia": { "marcasFiltradas": [{"marca":"nike","categoria":"deportivo"}], "texto_filtrado": "que tenga puesta una gorra estilo deportivo bien grande, en mayúsculas como se lee", "marca_en_imagen": {"detectada": false} },
+  "resultado_real": "'NIKE' en mayusculas detectada y reemplazada igual que en minusculas. Sin marca en la imagen resultante.",
+  "pass": true
+}

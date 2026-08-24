@@ -1,0 +1,9 @@
+{
+  "id": "conf-05",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Lote mixto: nuevos + actualizados + radicales",
+  "esperado": "Resumen con los 3 conteos correctos",
+  "evidencia": { "resumen": {"nuevos": 1, "actualizados": 2, "radicales": 1, "total": 3} },
+  "resultado_real": "1 producto nuevo, 2 actualizados (de los cuales 1 radical por caida grande de precio), total 3 -- clasificacion correcta en un solo lote mixto.",
+  "pass": true
+}

@@ -1,0 +1,10 @@
+{
+  "id": "marca-04",
+  "categoria": "marcas-imagen",
+  "descripcion": "\"McDonald's\" (variante de escritura con apostrofe) reconocida como la marca 'mcdonalds'",
+  "esperado": "Tratada como UNA marca, filtrada correctamente",
+  "execution_id": "1389",
+  "evidencia": { "marcasFiltradas": [{"marca":"mcdonalds","categoria":"comida_rapida"}], "text_filtrado": "que el cartel del local diga estilo comida rápida genérica arriba de la barra", "marca_en_imagen": {"detectada": false} },
+  "resultado_real": "\"McDonald's\" (con apostrofe) matcheo correctamente contra la marca canonica 'mcdonalds' y se reemplazo. Imagen generada sin ninguna marca real detectada.",
+  "pass": true
+}

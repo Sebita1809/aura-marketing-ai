@@ -1,0 +1,10 @@
+{
+  "id": "marca-06",
+  "categoria": "marcas-imagen",
+  "descripcion": "'un auto Toyota'",
+  "esperado": "Igual a marca-02, categoria autos",
+  "execution_id": "1395",
+  "evidencia": { "marcasFiltradas": [{"marca":"toyota","categoria":"autos"}], "text_filtrado": "que se vea un auto estilo vehículo genérico estacionado afuera del local", "marca_en_imagen": {"detectada": false} },
+  "resultado_real": "Toyota reemplazado correctamente. Imagen generada sin marca detectada.",
+  "pass": true
+}

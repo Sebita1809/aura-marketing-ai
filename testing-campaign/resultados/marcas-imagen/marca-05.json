@@ -1,0 +1,13 @@
+{
+  "id": "marca-05",
+  "categoria": "marcas-imagen",
+  "descripcion": "'un iPhone' (submarca de Apple)",
+  "esperado": "Reemplazado a generico tecnologico",
+  "execution_id": "1391",
+  "evidencia": {
+    "filtro_texto": { "marcasFiltradas": [{"marca":"apple","categoria":"tecnologia"}], "datoSinMarca": "que tenga un estilo tecnológico genérico en la mano" },
+    "chequeo_imagen": { "detectada": true, "marca": "Andes", "motivo": "El diseño distintivo de la lata de cerveza IPA (color, tipografía y estilo) es reconocible como la marca Andes." }
+  },
+  "resultado_real": "'iPhone' correctamente reconocido como submarca de Apple y reemplazado. El chequeo de imagen rechazo la imagen, pero por una marca DISTINTA (Andes, en una lata de cerveza que ya estaba en la escena de una edicion anterior) -- confirma que el chequeo de imagen actua como red de seguridad general, no solo para la marca del test puntual.",
+  "pass": true
+}

@@ -1,0 +1,10 @@
+{
+  "id": "conf-06",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Confirmar con boton 'Si'",
+  "esperado": "Productos se guardan, historial actualizado",
+  "metodologia": "Evidencia real via Telegram, reutilizada de multiples tests anteriores de la campana (no un test aislado nuevo -- el boton 'Si' se ejercito decenas de veces a lo largo de las categorias injection-pdf/sheets/imagen y marcas-imagen).",
+  "evidencia": { "ejemplos_execution_id": [1129, 1291, 1379, 1391, 1395, 1399, 1401] },
+  "resultado_real": "Confirmado exitosamente en multiples ocasiones a lo largo de la campana: click en 'Si' -> HTTP - Upsert producto (confirmado) -> Telegram - Sobrescritura confirmada, sin errores.",
+  "pass": true
+}

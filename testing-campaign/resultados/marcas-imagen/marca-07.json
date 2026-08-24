@@ -1,0 +1,10 @@
+{
+  "id": "marca-07",
+  "categoria": "marcas-imagen",
+  "descripcion": "Control: sin ninguna marca mencionada",
+  "esperado": "Texto sin cambios",
+  "execution_id": "1397",
+  "evidencia": { "marcasFiltradas": [], "texto": "que la foto tenga un fondo con luces cálidas y mesas de madera", "marca_en_imagen": {"detectada": false} },
+  "resultado_real": "Sin ninguna marca detectada ni en el texto ni en la imagen resultante, como corresponde.",
+  "pass": true
+}

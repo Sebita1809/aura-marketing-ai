@@ -1,0 +1,9 @@
+{
+  "id": "conf-09",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Multiples cambios radicales en un mismo lote",
+  "esperado": "Conteo de radicales correcto para cada uno",
+  "evidencia": { "resumen": {"nuevos": 0, "actualizados": 3, "radicales": 3, "total": 3} },
+  "resultado_real": "3 productos con caidas de precio grandes, los 3 correctamente marcados como radicales.",
+  "pass": true
+}

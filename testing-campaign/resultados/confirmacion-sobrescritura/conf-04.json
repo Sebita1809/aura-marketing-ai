@@ -1,0 +1,9 @@
+{
+  "id": "conf-04",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Producto con descripcion radicalmente distinta",
+  "esperado": "Marcado 'radical' con motivo de descripcion",
+  "evidencia": { "producto": "DUNK CHEESE SIMPLE", "precio_sin_cambios": true, "es_radical": true, "motivos": ["descripción muy distinta a la anterior"] },
+  "resultado_real": "Mismo precio (sin cambio), descripcion totalmente distinta correctamente detectada via similitud Jaccard (<0.15), marcado radical solo por ese motivo.",
+  "pass": true
+}

@@ -1,0 +1,10 @@
+{
+  "id": "conf-07",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Cancelar con boton 'No'",
+  "esperado": "Nada se guarda, catalogo sin cambios",
+  "metodologia": "Evidencia real via Telegram, ocurrida naturalmente durante el testing de la categoria injection-sheets (execution 1251).",
+  "evidencia": { "execution_id": 1251, "resultado_dispatcher": {"resultado": "Cancelar sobrescritura", "dato": "cancelar_upsert"}, "nodos_ejecutados": ["Redis - Limpiar pendiente upsert", "Redis - Reset estado tras confirmacion", "IF - Fue confirmado sobrescritura", "Telegram - Sobrescritura cancelada"] },
+  "resultado_real": "Click en 'No' fue a 'Redis - Limpiar pendiente upsert' directo desde Switch3 -- NUNCA paso por 'HTTP - Upsert producto (confirmado)' (verificado tambien por conexiones del grafo: ese nodo alimenta Switch3 e 'IF - Hay pendientes upsert', no al reves). Termino en 'Telegram - Sobrescritura cancelada' sin escribir nada.",
+  "pass": true
+}

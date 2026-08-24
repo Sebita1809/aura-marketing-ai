@@ -1,0 +1,13 @@
+{
+  "id": "marca-10",
+  "categoria": "marcas-imagen",
+  "descripcion": "Dos marcas de categorias DISTINTAS ('Nike' + 'Coca-Cola')",
+  "esperado": "Cada una reemplazada por el generico de su categoria, sin numerar",
+  "execution_id": "1405",
+  "evidencia": {
+    "filtro_texto": { "marcasFiltradas": [{"marca":"nike","categoria":"deportivo"},{"marca":"coca-cola","categoria":"gaseosa"}], "texto_filtrado": "que haya alguien con una remera estilo deportivo tomando una estilo gaseosa genérica" },
+    "chequeo_imagen": { "detectada": true, "marca": "Andesgear", "motivo": "Se observa el logo distintivo de la marca Andesgear en la camiseta del hombre." }
+  },
+  "resultado_real": "Nike y Coca-Cola (categorias distintas: deportivo y gaseosa) reemplazadas sin numerar -- correcto, no compiten por el mismo descriptor compartido. El chequeo de imagen rechazo por otra marca (Andesgear) que aparecio en la remera del hombre.",
+  "pass": true
+}

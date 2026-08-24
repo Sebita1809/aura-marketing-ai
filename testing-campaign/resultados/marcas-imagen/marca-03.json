@@ -1,0 +1,14 @@
+{
+  "id": "marca-03",
+  "categoria": "marcas-imagen",
+  "descripcion": "'una fanta en vez de una coca cola' (regresion del bug ya corregido)",
+  "esperado": "Igual a marca-02, sin falso positivo de injection",
+  "execution_id": "1385",
+  "evidencia": {
+    "filtro_texto": { "marcasFiltradas": [{"marca":"fanta","categoria":"gaseosa"},{"marca":"coca-cola","categoria":"gaseosa"}], "datoSinMarca": "mejor que la bebida sea una estilo gaseosa genérica (opción 1) en vez de una estilo gaseosa genérica (opción 2)" },
+    "chequeo_imagen": { "detectada": true, "marca": "Sprite", "motivo": "El logo de Sprite es visible y reconocible en el vaso de la bebida, que es una marca de terceros." }
+  },
+  "resultado_real": "El filtro de texto funciono perfecto (sin el bug original, sin falso positivo de injection). La IA generadora igual dibujo un logo real de Sprite por su cuenta (sin que el prompt lo mencionara) -- el chequeo de imagen (segunda capa) lo detecto y rechazo correctamente, avisando al admin con la foto adjunta.",
+  "pass": true,
+  "notas": "Caso valioso para el informe: demuestra por que la segunda capa (chequeo de la imagen generada) es necesaria ademas del filtro de texto -- el texto por si solo no garantiza que la imagen final este libre de marcas."
+}

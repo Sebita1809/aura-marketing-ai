@@ -1,0 +1,26 @@
+{
+  "id": "pdf-01",
+  "categoria": "injection-pdf",
+  "descripcion": "Control: PDF limpio con productos validos, sin injection",
+  "esperado": "Se suben los productos, sin alerta a admin",
+  "timestamp": "2026-08-23T22:00:02.903Z",
+  "execution_id": "1122",
+  "evidencia": {
+    "nodos_relevantes": {
+      "Escaneo ClamAV": "OK, PDF limpio",
+      "Analyze document": "OK, productos extraidos correctamente, prompt_injection_detectado: false",
+      "IF - Prompt injection detectado": "false (correcto, no habia injection)",
+      "HTTP - Calcular diff sobrescritura": "ERROR 400 -- ver bug encontrado"
+    },
+    "error_encontrado": {
+      "codigo_postgres": "22P02",
+      "mensaje": "malformed array literal: \"descripción muy distinta a la anterior\"",
+      "causa_raiz": "En product_catalog_diff_preview, 'v_motivos := v_motivos || <string>' es ambiguo para Postgres entre los operadores anyarray||anyarray y anyarray||anyelement -- resolvia hacia array||array e intentaba parsear el string como literal de array, lo cual falla con cualquier texto normal.",
+      "fix_aplicado": "Migracion 20260823040000_fix_diff_preview_array_concat.sql -- reemplaza '||' por array_append() en las 2 lineas afectadas. Verificado con el mismo payload real que fallo: ya no da error, y el caso de 'descripcion muy distinta' se probo por separado tambien."
+    },
+    "hallazgo_secundario": "El mensaje que el bot manda ANTES de la confirmacion ('Mensaje de muestra sober la informacion guardada' / '...1') decia '¡Link vinculado con exito! He guardado tu base de datos de productos' -- texto desactualizado de antes de que existiera el flujo de confirmacion. El usuario vio ese mensaje y penso que ya se habia guardado, cuando en realidad el paso de confirmacion crasheo y no se guardo nada. Corregido para no afirmar que ya se guardo."
+  },
+  "resultado_real": "Primer intento (exec 1122): ERROR antes de la confirmacion (bug real, corregido). Retest tras el fix (exec 1127): calculo del diff OK, mensaje de confirmacion enviado correctamente. Al confirmar con 'Si' (exec 1128), un tercer bug -- este de infraestructura externa, no de codigo -- aparecio: Cloudflare devolvio 525 (SSL handshake fallido) entre Supabase y su origen a mitad del lote (item 27 de ~30), abortando el resto sin reintento automatico. Un segundo intento manual (exec 1129) completo el lote entero sin problemas y el bot confirmo la sobrescritura exitosamente.",
+  "pass": true,
+  "notas": "PASS final, pero encontro 3 problemas reales en el camino: (1) bug critico de backend (array_append vs ||, CORREGIDO), (2) mensaje de UX enganoso que decia 'ya guardado' antes de confirmar (CORREGIDO), (3) sin reintento automatico ante fallas transitorias de red -- un blip de Cloudflare/Supabase corta el lote a mitad de camino (CORREGIDO: se agrego retryOnFail=true, maxTries=3 a 'HTTP - Upsert producto (confirmado)' y 'HTTP - Calcular diff sobrescritura'). Los 3 fixes ya estan en codigo.json, pendiente confirmar en un proximo test que el retry automatico evita la necesidad de reintento manual."
+}

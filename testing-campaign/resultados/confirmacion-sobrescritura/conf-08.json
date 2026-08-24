@@ -1,0 +1,9 @@
+{
+  "id": "conf-08",
+  "categoria": "confirmacion-sobrescritura",
+  "descripcion": "Primera carga con catalogo vacio (usuario nuevo)",
+  "esperado": "Todos marcados 'nuevos', sin radicales",
+  "evidencia": { "user_id_sin_productos": "00000000-0000-0000-0000-000000000001", "resumen": {"nuevos": 1, "actualizados": 0, "radicales": 0, "total": 1} },
+  "resultado_real": "Usuario sin fila en products (catalogo vacio) -- el producto se clasifica correctamente como 'nuevo', sin intentar comparar contra nada.",
+  "pass": true
+}

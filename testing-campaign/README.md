@@ -1,6 +1,8 @@
 # Campaña de testeos — Aura (TFC)
 
-Versión congelada: tag `campana-testing-v1` (commit `668306a`, 2026-08-23). Todos los tests de esta carpeta corresponden a esa versión exacta del workflow (`codigo.json`) y del schema de Supabase.
+Versión congelada final: tag `campana-testing-final` (commit `b1b78a7`, 2026-08-24). **Todos los resultados en `resultados/` corresponden a esta versión** — cualquier caso que haya fallado contra una versión anterior fue re-corrido tras el fix correspondiente hasta pasar contra esta versión final.
+
+`campana-testing-v1` (commit `668306a`, 2026-08-23) fue el punto de partida de la campaña, antes de los fixes que la propia campaña encontró necesarios — se conserva como referencia histórica, no como versión de evidencia.
 
 ## Metodología
 

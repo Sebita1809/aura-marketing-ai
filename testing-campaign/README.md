@@ -1,6 +1,6 @@
 # Campaña de testeos — Aura (TFC)
 
-Versión congelada final: tag `campana-testing-final` (commit `b1b78a7`, 2026-08-24). **Todos los resultados en `resultados/` corresponden a esta versión** — cualquier caso que haya fallado contra una versión anterior fue re-corrido tras el fix correspondiente hasta pasar contra esta versión final.
+Versión congelada final: tag `campana-testing-final` (commit `0e848b2`, 2026-08-24). **Todos los resultados en `resultados/` corresponden a esta versión** — cualquier caso que haya fallado contra una versión anterior fue re-corrido tras el fix correspondiente hasta pasar contra esta versión final.
 
 `campana-testing-v1` (commit `668306a`, 2026-08-23) fue el punto de partida de la campaña, antes de los fixes que la propia campaña encontró necesarios — se conserva como referencia histórica, no como versión de evidencia.
 

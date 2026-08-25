@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import MaterialIcon from './MaterialIcon';
+import LegalAcceptanceGate from './LegalAcceptanceGate';
 
 export default function ProtectedRoute({ children, requiredRole }) {
-  const { user, profile, loading, profileLoading, logout } = useAuth();
+  const { user, profile, loading, profileLoading, logout, legalAccepted, legalLoading } = useAuth();
 
   // El perfil ya cargó (no está en null/profileLoading) y su estado no es 'active':
   // nunca se decide esto antes de que el perfil haya terminado de cargar, para no
@@ -58,6 +59,27 @@ export default function ProtectedRoute({ children, requiredRole }) {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Bloqueo total (legal-documents-acceptance): ninguna ruta protegida se
+  // renderiza -- para ningún rol -- hasta que el usuario acepte la versión
+  // vigente de TODOS los documentos legales (Privacidad + Términos) en la
+  // web. Se resuelve antes que requiredRole a propósito: no tiene sentido
+  // esperar el perfil/rol si de entrada el usuario todavía no puede pasar
+  // el gate.
+  if (legalLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <MaterialIcon icon="autorenew" className="text-primary text-4xl animate-spin" />
+          <p className="text-on-surface-variant font-body-md">Verificando aceptación de documentos legales...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!legalAccepted) {
+    return <LegalAcceptanceGate />;
   }
 
   // Si hay requiredRole pero el profile todavía se está cargando → esperar

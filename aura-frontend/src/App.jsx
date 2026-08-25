@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
 import AdminDashboard from './pages/AdminDashboard';
 import UsersPage from './pages/UsersPage';
 import ConnectionsPage from './pages/ConnectionsPage';
@@ -20,6 +22,8 @@ function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/landing" element={<LandingPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
       <Route
         path="/login"
         element={user ? <Navigate to="/admin" replace /> : <LoginPage />}

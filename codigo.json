@@ -7770,6 +7770,305 @@
         }
       },
       "notes": "bugfix (2026-08-23). Antes de este fix, un producto:null (imagen sin contenido identificable) llegaba igual al mensaje de confirmacion como \"1 producto nuevo\" con nombre vacio."
+    },
+    {
+      "parameters": {
+        "url": "=https://legffrhakunfignlaftl.supabase.co/rest/v1/legal_documents?select=slug,version,url",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        141056,
+        229568
+      ],
+      "id": "8c1b6a3a-2f1e-4d3a-9d0a-2f6a7b1c9e01",
+      "name": "HTTP - Versiones legales",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7urpefTlc4ym1OfT",
+          "name": "Supabase Service Role"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://legffrhakunfignlaftl.supabase.co/rest/v1/legal_acceptances?select=document,version&user_id=eq.{{ $('HTTP - Chequear vinculacion').first().json.id }}&channel=eq.telegram",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        141360,
+        229568
+      ],
+      "id": "3d2e9f4b-6a7c-4e2a-8b1d-5c9f0a3e7b12",
+      "name": "HTTP - Aceptaciones legales telegram",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7urpefTlc4ym1OfT",
+          "name": "Supabase Service Role"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compara las versiones vigentes de cada documento legal (legal_documents)\n// contra lo que este usuario ya acepto por Telegram (legal_acceptances,\n// channel='telegram'). Un documento cuenta como aceptado solo si existe fila\n// Y su version coincide con la vigente (si la politica/terminos cambiaron\n// despues de la ultima aceptacion, vuelve a pedirse).\nconst versionesItems = $('HTTP - Versiones legales').all().map(i => i.json).filter(v => v && v.slug);\nconst aceptacionesItems = $('HTTP - Aceptaciones legales telegram').all().map(i => i.json).filter(a => a && a.document);\n\nconst versiones = {};\nfor (const v of versionesItems) versiones[v.slug] = { version: v.version, url: v.url };\n\nfunction estaAceptado(slug) {\n  const fila = aceptacionesItems.find(a => a.document === slug);\n  return !!fila && !!versiones[slug] && fila.version === versiones[slug].version;\n}\n\nconst privacidadOk = estaAceptado('privacy_policy');\nconst terminosOk = estaAceptado('terms_conditions');\n\nreturn [{\n  json: {\n    ambosAceptados: privacidadOk && terminosOk,\n    privacidadOk,\n    terminosOk,\n    versiones: {\n      privacy_policy: versiones.privacy_policy || { version: null, url: '' },\n      terms_conditions: versiones.terms_conditions || { version: null, url: '' }\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        141664,
+        229568
+      ],
+      "id": "6f0a5b8e-1c4d-4a3e-9f2b-8d7e6c5a4b30",
+      "name": "Code - Evaluar aceptacion legal telegram"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "legal-tg-cond-1",
+              "leftValue": "={{ !!$json.ambosAceptados }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        141968,
+        229568
+      ],
+      "id": "a4b3c2d1-8e7f-4a6b-9c5d-1e2f3a4b5c60",
+      "name": "IF - Acepto legales telegram"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "legal-tg-cond-2",
+              "leftValue": "={{ $('Telegram Trigger').first().json.callback_query?.data ?? '' }}",
+              "rightValue": "legal:",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        142272,
+        229744
+      ],
+      "id": "b5c4d3e2-9f8a-4b7c-8d6e-2f3a4b5c6d71",
+      "name": "IF - Es respuesta legales"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "legal-tg-cond-3",
+              "leftValue": "={{ $('Telegram Trigger').first().json.callback_query?.data ?? '' }}",
+              "rightValue": "legal:accept",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        142576,
+        229744
+      ],
+      "id": "c6d5e4f3-0a9b-4c8d-9e7f-3a4b5c6d7e82",
+      "name": "IF - Acepto o rechazo legales"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://legffrhakunfignlaftl.supabase.co/rest/v1/legal_acceptances?on_conflict=user_id,document,channel",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ user_id: $('HTTP - Chequear vinculacion').first().json.id, document: 'privacy_policy', channel: 'telegram', version: $('Code - Evaluar aceptacion legal telegram').first().json.versiones.privacy_policy.version }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        142880,
+        229744
+      ],
+      "id": "d7e6f5a4-1b0c-4d9e-8f7a-4b5c6d7e8f93",
+      "name": "HTTP - Registrar aceptacion privacidad telegram",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7urpefTlc4ym1OfT",
+          "name": "Supabase Service Role"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://legffrhakunfignlaftl.supabase.co/rest/v1/legal_acceptances?on_conflict=user_id,document,channel",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ user_id: $('HTTP - Chequear vinculacion').first().json.id, document: 'terms_conditions', channel: 'telegram', version: $('Code - Evaluar aceptacion legal telegram').first().json.versiones.terms_conditions.version }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        143184,
+        229744
+      ],
+      "id": "e8f7a6b5-2c1d-4e0f-9a8b-5c6d7e8f9a04",
+      "name": "HTTP - Registrar aceptacion terminos telegram",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7urpefTlc4ym1OfT",
+          "name": "Supabase Service Role"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript7').item.json.id_chat }}",
+        "text": "=✅ ¡Gracias! Ya aceptaste la Política de Privacidad y los Términos y Condiciones. Ya podés usar el bot con normalidad.",
+        "additionalFields": {}
+      },
+      "id": "f9a8b7c6-3d2e-4f1a-8b9c-6d7e8f9a0b15",
+      "name": "Telegram - Legales aceptados",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        143488,
+        229744
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "bBArR5HmMY4lYgoZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: $('Code in JavaScript7').item.json.id_chat, text: \"🔒 *Antes de continuar*\\n────────────────────\\nNecesitamos que aceptes:\\n\\n📄 Política de Privacidad: \" + $('Code - Evaluar aceptacion legal telegram').first().json.versiones.privacy_policy.url + \"\\n📄 Términos y Condiciones: \" + $('Code - Evaluar aceptacion legal telegram').first().json.versiones.terms_conditions.url + \"\\n\\n¿Aceptás ambos?\", parse_mode: 'Markdown', reply_markup: { inline_keyboard: [[ { text: '✅ Acepto ambos', callback_data: 'legal:accept' }, { text: '❌ No acepto', callback_data: 'legal:reject' } ]] } }) }}",
+        "options": {}
+      },
+      "id": "0a9b8c7d-4e3f-4a2b-9c0d-7e8f9a0b1c26",
+      "name": "Telegram - Pedir aceptacion legales",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        142880,
+        229920
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "content": "## 🔏 Aceptación de documentos legales — Telegram\n\nDespués de vincular la cuenta (IF - Ya vinculado = true), lee las versiones vigentes de `legal_documents` (privacy_policy + terms_conditions) y verifica si el usuario ya las aceptó por este canal (`legal_acceptances`, channel='telegram'). Si falta alguna, corta el flujo antes del dispatcher y repite un único aviso combinado con botones ✅ Acepto ambos / ❌ No acepto en cada mensaje que mande, hasta que toque Acepto — recién ahí se registran las dos aceptaciones (upsert por user_id+document+channel) y continúa al enrutamiento normal (Redis27 → Code in JavaScript5).\n\n_(10 nodos)_",
+        "height": 620,
+        "width": 2900,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        140960,
+        229480
+      ],
+      "id": "1b0c9d8e-5f4a-4b3c-8d1e-8f9a0b1c2d37",
+      "name": "Sticky - aceptacion legal telegram"
     }
   ],
   "connections": {
@@ -8763,7 +9062,7 @@
       "main": [
         [
           {
-            "node": "Redis27",
+            "node": "HTTP - Versiones legales",
             "type": "main",
             "index": 0
           }
@@ -8771,6 +9070,126 @@
         [
           {
             "node": "Code - Generar código",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Versiones legales": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Aceptaciones legales telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Aceptaciones legales telegram": {
+      "main": [
+        [
+          {
+            "node": "Code - Evaluar aceptacion legal telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Evaluar aceptacion legal telegram": {
+      "main": [
+        [
+          {
+            "node": "IF - Acepto legales telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Acepto legales telegram": {
+      "main": [
+        [
+          {
+            "node": "Redis27",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF - Es respuesta legales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Es respuesta legales": {
+      "main": [
+        [
+          {
+            "node": "IF - Acepto o rechazo legales",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram - Pedir aceptacion legales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Acepto o rechazo legales": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Registrar aceptacion privacidad telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram - Pedir aceptacion legales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Registrar aceptacion privacidad telegram": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Registrar aceptacion terminos telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Registrar aceptacion terminos telegram": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Legales aceptados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Legales aceptados": {
+      "main": [
+        [
+          {
+            "node": "Redis27",
             "type": "main",
             "index": 0
           }

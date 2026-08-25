@@ -1,5 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { hasAcceptedCurrentVersion, LEGAL_CHANNEL_WEB, LEGAL_DOCUMENTS } from '../lib/legalDocuments';
+
+const LEGAL_DOCUMENT_LIST = Object.values(LEGAL_DOCUMENTS);
 
 const AuthContext = createContext(null);
 
@@ -11,6 +14,15 @@ export function AuthProvider({ children }) {
   // Arranca en true: hasta que la sesión (loading) resuelva, no sabemos
   // todavía si hay o no un usuario cuyo perfil haya que buscar.
   const [profileLoading, setProfileLoading] = useState(true);
+  // Un booleano por slug de documento (privacy_policy, terms_conditions),
+  // canal web. legal-documents-acceptance: aceptación combinada en un solo
+  // paso (design decision), pero registrada por documento en Supabase.
+  const [legalStatus, setLegalStatus] = useState({});
+  // Arranca en true por el mismo motivo que profileLoading (ver comentario de
+  // arriba): hasta que la sesión resuelva no sabemos si hay o no un usuario
+  // cuya aceptación haya que buscar.
+  const [legalLoading, setLegalLoading] = useState(true);
+  const legalAccepted = LEGAL_DOCUMENT_LIST.every((doc) => legalStatus[doc.slug]);
 
   // Obtener el perfil (rol) del usuario autenticado
   useEffect(() => {
@@ -44,6 +56,42 @@ export function AuthProvider({ children }) {
     };
 
     fetchProfile();
+  }, [user?.id, loading]);
+
+  // Aceptación de documentos legales, canal web (legal-documents-acceptance).
+  // Mismo criterio de timing que el efecto de arriba: espera a que `loading`
+  // resuelva antes de decidir "no hay nada que buscar", para no marcar
+  // legalLoading=false de más durante el flash de una sesión que en realidad
+  // sigue resolviéndose.
+  useEffect(() => {
+    if (loading) return;
+
+    if (!user?.id) {
+      setLegalStatus({});
+      setLegalLoading(false);
+      return;
+    }
+
+    setLegalLoading(true);
+    const fetchLegalAcceptance = async () => {
+      const { data } = await supabase
+        .from('legal_acceptances')
+        .select('document, version')
+        .eq('user_id', user.id)
+        .eq('channel', LEGAL_CHANNEL_WEB)
+        .in('document', LEGAL_DOCUMENT_LIST.map((doc) => doc.slug));
+
+      const rows = data || [];
+      const status = {};
+      for (const doc of LEGAL_DOCUMENT_LIST) {
+        const row = rows.find((r) => r.document === doc.slug);
+        status[doc.slug] = hasAcceptedCurrentVersion(row, doc.version);
+      }
+      setLegalStatus(status);
+      setLegalLoading(false);
+    };
+
+    fetchLegalAcceptance();
   }, [user?.id, loading]);
 
   useEffect(() => {
@@ -89,8 +137,34 @@ export function AuthProvider({ children }) {
     setProfile((p) => (p ? { ...p, ...partial } : p));
   };
 
+  // Acepta TODOS los documentos legales de un saque (decisión combinada,
+  // legal-documents-acceptance): un RPC por documento, cada uno un upsert
+  // independiente en `legal_acceptances`. Si el segundo falla tras el primero
+  // ya haber quedado guardado, no es un problema -- el gate vuelve a
+  // mostrarse (legalAccepted sigue false) y el usuario reintenta; el primer
+  // documento no se re-envía al servidor en vano porque el RPC es upsert.
+  const acceptLegalDocuments = async () => {
+    for (const doc of LEGAL_DOCUMENT_LIST) {
+      const { data, error } = await supabase.rpc('accept_legal_document', {
+        p_document: doc.slug,
+        p_channel: LEGAL_CHANNEL_WEB,
+        p_version: doc.version,
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'No se pudo registrar la aceptación.');
+    }
+    setLegalStatus((prev) => {
+      const next = { ...prev };
+      for (const doc of LEGAL_DOCUMENT_LIST) next[doc.slug] = true;
+      return next;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, profileLoading, login, logout, updateProfile }}>
+    <AuthContext.Provider value={{
+      user, session, profile, loading, profileLoading, login, logout, updateProfile,
+      legalStatus, legalLoading, legalAccepted, acceptLegalDocuments,
+    }}>
       {children}
     </AuthContext.Provider>
   );

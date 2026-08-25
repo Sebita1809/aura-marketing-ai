@@ -19,8 +19,8 @@ export default function Footer({ onContactClick }) {
         </div>
         <div className="flex flex-col items-center md:items-end gap-6">
           <div className="flex items-center gap-8">
-            <Link to="#" className="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100">Privacidad</Link>
-            <Link to="#" className="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100">Términos</Link>
+            <Link to="/privacy-policy" className="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100">Privacidad</Link>
+            <Link to="/terms-and-conditions" className="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100">Términos</Link>
             <button
               type="button"
               onClick={onContactClick}

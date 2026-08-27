@@ -13,6 +13,7 @@ import MetaOAuthCallback from './pages/MetaOAuthCallback';
 import MetricsPage from './pages/MetricsPage';
 import ProfilePage from './pages/ProfilePage';
 import SupportInboxPage from './pages/SupportInboxPage';
+import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -85,6 +86,11 @@ function App() {
       {/* Redirigir /admin/connections y /admin/connect-network a /app/ */}
       <Route path="/admin/connections" element={<Navigate to="/app/connections" replace />} />
       <Route path="/admin/connect-network" element={<Navigate to="/app/connect-network" replace />} />
+
+      {/* Catch-all: cualquier ruta no reconocida (incluida la resuelta por el
+          rewrite SPA de vercel.json en recargas/URLs directas) muestra el 404
+          propio en vez de dejar la pantalla en blanco. */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

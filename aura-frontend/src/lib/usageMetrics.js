@@ -43,6 +43,15 @@ export function aggregateUsage(events, opts = {}) {
         const scheduledFor = ev.metadata?.scheduled_for ? new Date(ev.metadata.scheduled_for) : null;
         if (scheduledFor && scheduledFor > now) {
           totals.postsScheduledPending += 1;
+        } else if (scheduledFor && scheduledFor <= now) {
+          // Postiz no expone (aun) un webhook confirmando la publicacion real
+          // de una programada (ver gitroomhq/postiz-app#1191, sigue abierto):
+          // una vez pasada scheduled_for asumimos que salio con exito, igual
+          // que 'status: success' se registra ya al programarla.
+          totals.postsPublished += 1;
+          if (ev.platform && Object.prototype.hasOwnProperty.call(byPlatform, ev.platform)) {
+            byPlatform[ev.platform] += 1;
+          }
         }
         break;
       }

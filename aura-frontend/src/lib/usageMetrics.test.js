@@ -65,6 +65,27 @@ test('aggregateUsage NO cuenta post_scheduled con scheduled_for ya pasado como p
   assert.equal(result.totals.postsScheduledPending, 0);
 });
 
+// --- Triangulación: post_scheduled con hora ya pasada cuenta como publicado ---
+
+test('aggregateUsage cuenta post_scheduled con scheduled_for ya pasado como publicado (total y por plataforma)', () => {
+  const events = [
+    { event_type: 'post_scheduled', platform: 'facebook', occurred_at: '2026-08-10T09:00:00Z', metadata: { scheduled_for: '2026-08-11T09:00:00Z' } },
+  ];
+  const result = aggregateUsage(events, { now });
+  assert.equal(result.totals.postsPublished, 1);
+  assert.equal(result.byPlatform.facebook, 1);
+});
+
+test('aggregateUsage suma post_published y post_scheduled ya pasado en el mismo total/plataforma', () => {
+  const events = [
+    { event_type: 'post_published', platform: 'instagram', occurred_at: '2026-08-18T10:00:00Z' },
+    { event_type: 'post_scheduled', platform: 'instagram', occurred_at: '2026-08-10T09:00:00Z', metadata: { scheduled_for: '2026-08-11T09:00:00Z' } },
+  ];
+  const result = aggregateUsage(events, { now });
+  assert.equal(result.totals.postsPublished, 2);
+  assert.equal(result.byPlatform.instagram, 2);
+});
+
 test('aggregateUsage ignora event_type desconocidos sin romper (contrato aditivo, D2)', () => {
   const events = [
     { event_type: 'ai_call', occurred_at: '2026-08-18T10:00:00Z' },

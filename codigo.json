@@ -6367,7 +6367,7 @@
     },
     {
       "parameters": {
-        "content": "## 🧭 Enrutamiento Principal (Dispatcher)\n\nNucleo de enrutamiento del bot. Code in JavaScript5 prepara el evento, \"If\" decide si el mensaje es una foto de aprobacion (rehacer/aceptar imagen generada) o un comando normal, y todo termina convergiendo en Switch3, el dispatcher principal con 25 salidas que reparte el flujo a cada funcionalidad del bot segun el comando o boton presionado.\n\n_(9 nodos)_",
+        "content": "## 🧭 Enrutamiento Principal (Dispatcher)\n\nNucleo de enrutamiento del bot. Code in JavaScript5 prepara el evento, \"If\" decide si el mensaje es una foto de aprobacion (rehacer/aceptar imagen generada) o un comando normal, y todo termina convergiendo en Switch3, el dispatcher principal con 25 salidas que reparte el flujo a cada funcionalidad del bot segun el comando o boton presionado.\n\n_(8 nodos)_",
         "height": 760,
         "width": 1620
       },
@@ -6397,8 +6397,8 @@
     },
     {
       "parameters": {
-        "content": "## 📊 Gestión de productos — IA conversacional / Google Sheets\n\nUn AI Agent (Gemini) con herramienta de lectura de Google Sheets responde preguntas sobre productos guardados y permite cargar informacion de producto por texto libre. Si el agente detecta que la info ya esta en la hoja, avisa; si no, guarda el producto via upsert HTTP y muestra una muestra de la informacion guardada.\n\n_(10 nodos)_",
-        "height": 760,
+        "content": "## 📊 Gestión de productos — IA conversacional / Google Sheets\n\nUn AI Agent (Gemini) con herramienta de lectura de Google Sheets responde preguntas sobre productos guardados y permite cargar informacion de producto por texto libre. Si el agente detecta que la info ya esta en la hoja, avisa; si no, guarda el producto via upsert HTTP y muestra una muestra de la informacion guardada.\n\n_(15 nodos)_",
+        "height": 1000,
         "width": 1620,
         "color": 6
       },
@@ -6413,7 +6413,7 @@
     },
     {
       "parameters": {
-        "content": "## 🖼️ Gestión de productos — fotos de referencia\n\nFlujo de carga de fotos de referencia del producto: el usuario envia una o mas fotos, se agregan (Aggregate), se analizan con IA (Analyze an image) y se suben como producto via upsert HTTP. Incluye estado \"ESPERANDO IMAGENES\" y expiracion de fotos en cache (fotos_{chat_id}).\n\n_(14 nodos)_",
+        "content": "## 🖼️ Gestión de productos — fotos de referencia\n\nFlujo de carga de fotos de referencia del producto: el usuario envia una o mas fotos, se agregan (Aggregate), se analizan con IA (Analyze an image) y se suben como producto via upsert HTTP. Incluye estado \"ESPERANDO IMAGENES\" y expiracion de fotos en cache (fotos_{chat_id}).\n\n_(18 nodos)_",
         "height": 930,
         "width": 2520,
         "color": 6
@@ -6430,7 +6430,7 @@
     {
       "parameters": {
         "content": "## 📄 Catálogo de productos vía PDF\n\nEl usuario sube un PDF con su catalogo. Se valida tamaño, luego firma binaria (magic bytes) para descartar archivos disfrazados, se escanea con ClamAV, y solo si esta limpio se analiza el contenido con IA (incluye su propio gate de deteccion de prompt-injection antes del upsert) para extraer y guardar los productos.\n\n_(21 nodos)_",
-        "height": 930,
+        "height": 1130,
         "width": 4020,
         "color": 6
       },
@@ -6461,7 +6461,7 @@
     },
     {
       "parameters": {
-        "content": "## ✨ Generación de anuncios con IA — modo \"Generar\"\n\nEntrada del modo \"generar imagen publicitaria nueva\": lee el producto e imagen de referencia guardados, pasa por el gate anti prompt-injection (filtro barato + clasificador Gemini si hay sospecha) y si esta limpio invoca a Gemini (Generate an image) para crear el anuncio.\n\n_(13 nodos)_",
+        "content": "## ✨ Generación de anuncios con IA — modo \"Generar\"\n\nEntrada del modo \"generar imagen publicitaria nueva\": lee el producto e imagen de referencia guardados, pasa por el gate anti prompt-injection (filtro barato + clasificador Gemini si hay sospecha) y si esta limpio invoca a Gemini (Generate an image) para crear el anuncio.\n\n_(15 nodos)_",
         "height": 590,
         "width": 3120,
         "color": 5
@@ -6477,7 +6477,7 @@
     },
     {
       "parameters": {
-        "content": "## ✏️ Generación de anuncios con IA — modo \"Editar\"\n\nEntrada del modo \"editar imagen existente\": lee la info del producto y la imagen limpia ya guardada, pasa por su propio gate anti prompt-injection y si esta limpio invoca a Gemini (Edit an image) para modificar el anuncio existente.\n\n_(12 nodos)_",
+        "content": "## ✏️ Generación de anuncios con IA — modo \"Editar\"\n\nEntrada del modo \"editar imagen existente\": lee la info del producto y la imagen limpia ya guardada, pasa por su propio gate anti prompt-injection y si esta limpio invoca a Gemini (Edit an image) para modificar el anuncio existente.\n\n_(14 nodos)_",
         "height": 590,
         "width": 3420,
         "color": 5
@@ -6589,7 +6589,7 @@
     },
     {
       "parameters": {
-        "content": "## 🚀 Creación del post (integración Postiz)\n\nPaso final: recolecta plataformas e integraciones elegidas, resuelve el origen del media (generado por IA o subido por el usuario), lo sube a Postiz, crea el post con la descripcion y fecha programada, y confirma el exito al usuario por Telegram.\n\n_(17 nodos)_",
+        "content": "## 🚀 Creación del post (integración Postiz)\n\nPaso final: recolecta plataformas e integraciones elegidas, resuelve el origen del media (generado por IA o subido por el usuario), lo sube a Postiz, crea el post con la descripcion y fecha programada, y confirma el exito al usuario por Telegram.\n\n_(19 nodos)_",
         "height": 590,
         "width": 4620,
         "color": 7
@@ -7781,8 +7781,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        141056,
-        229568
+        142470,
+        229140
       ],
       "id": "8c1b6a3a-2f1e-4d3a-9d0a-2f6a7b1c9e01",
       "name": "HTTP - Versiones legales",
@@ -7807,8 +7807,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        141360,
-        229568
+        142774,
+        229140
       ],
       "id": "3d2e9f4b-6a7c-4e2a-8b1d-5c9f0a3e7b12",
       "name": "HTTP - Aceptaciones legales telegram",
@@ -7830,8 +7830,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        141664,
-        229568
+        143078,
+        229140
       ],
       "id": "6f0a5b8e-1c4d-4a3e-9f2b-8d7e6c5a4b30",
       "name": "Code - Evaluar aceptacion legal telegram"
@@ -7864,8 +7864,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        141968,
-        229568
+        143382,
+        229140
       ],
       "id": "a4b3c2d1-8e7f-4a6b-9c5d-1e2f3a4b5c60",
       "name": "IF - Acepto legales telegram"
@@ -7897,8 +7897,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        142272,
-        229744
+        143686,
+        229316
       ],
       "id": "b5c4d3e2-9f8a-4b7c-8d6e-2f3a4b5c6d71",
       "name": "IF - Es respuesta legales"
@@ -7930,8 +7930,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        142576,
-        229744
+        143990,
+        229316
       ],
       "id": "c6d5e4f3-0a9b-4c8d-9e7f-3a4b5c6d7e82",
       "name": "IF - Acepto o rechazo legales"
@@ -7959,8 +7959,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        142880,
-        229744
+        144294,
+        229316
       ],
       "id": "d7e6f5a4-1b0c-4d9e-8f7a-4b5c6d7e8f93",
       "name": "HTTP - Registrar aceptacion privacidad telegram",
@@ -7997,8 +7997,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        143184,
-        229744
+        144598,
+        229316
       ],
       "id": "e8f7a6b5-2c1d-4e0f-9a8b-5c6d7e8f9a04",
       "name": "HTTP - Registrar aceptacion terminos telegram",
@@ -8023,8 +8023,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        143488,
-        229744
+        144902,
+        229316
       ],
       "credentials": {
         "telegramApi": {
@@ -8047,8 +8047,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        142880,
-        229920
+        144294,
+        229492
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -8064,8 +8064,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        140960,
-        229480
+        142374,
+        229052
       ],
       "id": "1b0c9d8e-5f4a-4b3c-8d1e-8f9a0b1c2d37",
       "name": "Sticky - aceptacion legal telegram"

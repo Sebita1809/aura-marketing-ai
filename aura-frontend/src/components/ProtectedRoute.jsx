@@ -61,29 +61,10 @@ export default function ProtectedRoute({ children, requiredRole }) {
     return <Navigate to="/login" replace />;
   }
 
-  // Bloqueo total (legal-documents-acceptance): ninguna ruta protegida se
-  // renderiza -- para ningún rol -- hasta que el usuario acepte la versión
-  // vigente de TODOS los documentos legales (Privacidad + Términos) en la
-  // web. Se resuelve antes que requiredRole a propósito: no tiene sentido
-  // esperar el perfil/rol si de entrada el usuario todavía no puede pasar
-  // el gate.
-  if (legalLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <MaterialIcon icon="autorenew" className="text-primary text-4xl animate-spin" />
-          <p className="text-on-surface-variant font-body-md">Verificando aceptación de documentos legales...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!legalAccepted) {
-    return <LegalAcceptanceGate />;
-  }
-
-  // Si hay requiredRole pero el profile todavía se está cargando → esperar
-  if (requiredRole && profileLoading) {
+  // Necesitamos el rol antes de decidir si el gate legal aplica (los admins
+  // están exentos, ver más abajo), así que el perfil se espera para
+  // cualquier ruta protegida, no solo las que declaran requiredRole.
+  if (profileLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -92,6 +73,30 @@ export default function ProtectedRoute({ children, requiredRole }) {
         </div>
       </div>
     );
+  }
+
+  const isAdmin = profile?.role === 'admin';
+
+  // Bloqueo total (legal-documents-acceptance): ninguna ruta protegida se
+  // renderiza hasta que el usuario acepte la versión vigente de TODOS los
+  // documentos legales (Privacidad + Términos) en la web. Excepción: los
+  // administradores no son destinatarios de estos términos de uso de
+  // usuarios finales, así que quedan exentos del gate.
+  if (!isAdmin) {
+    if (legalLoading) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <MaterialIcon icon="autorenew" className="text-primary text-4xl animate-spin" />
+            <p className="text-on-surface-variant font-body-md">Verificando aceptación de documentos legales...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (!legalAccepted) {
+      return <LegalAcceptanceGate />;
+    }
   }
 
   // Si requiere un rol específico y el usuario no lo tiene, redirigir

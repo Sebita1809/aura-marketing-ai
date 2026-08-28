@@ -10,40 +10,41 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
+  // Id de usuario para el que `profile` ya se buscó (con éxito o no). Se
+  // compara contra `user?.id` para derivar profileLoading en el mismo render
+  // en que `user` cambia -- ver comentario de profileLoading más abajo.
+  const [profileFetchedFor, setProfileFetchedFor] = useState(null);
   const [loading, setLoading] = useState(true);
-  // Arranca en true: hasta que la sesión (loading) resuelva, no sabemos
-  // todavía si hay o no un usuario cuyo perfil haya que buscar.
-  const [profileLoading, setProfileLoading] = useState(true);
+  // Derivado, no un state separado: si fuera un state actualizado por el
+  // useEffect de abajo, habría un render intermedio -- entre que `user`
+  // cambia (ej. login) y que el efecto corre -- donde profileLoading todavía
+  // tendría el valor viejo (false, de "no logueado") mientras `profile` sigue
+  // en null. En ese render, ProtectedRoute leería "perfil cargado sin rol" y
+  // redirigiría de más (flash de ConnectionsPage/"Hola, Usuario" al loguearse
+  // como admin). Al derivarlo de profileFetchedFor vs user.id, queda
+  // sincronizado en el mismo render en que user cambia, sin ventana de carrera.
+  const profileLoading = loading || (!!user?.id && profileFetchedFor !== user.id);
   // Un booleano por slug de documento (privacy_policy, terms_conditions),
   // canal web. legal-documents-acceptance: aceptación combinada en un solo
   // paso (design decision), pero registrada por documento en Supabase.
   const [legalStatus, setLegalStatus] = useState({});
-  // Arranca en true por el mismo motivo que profileLoading (ver comentario de
-  // arriba): hasta que la sesión resuelva no sabemos si hay o no un usuario
-  // cuya aceptación haya que buscar.
-  const [legalLoading, setLegalLoading] = useState(true);
+  // Mismo patrón que profileFetchedFor, mismo motivo (evitar la ventana de
+  // carrera de un state de loading separado).
+  const [legalStatusFetchedFor, setLegalStatusFetchedFor] = useState(null);
+  const legalLoading = loading || (!!user?.id && legalStatusFetchedFor !== user.id);
   const legalAccepted = LEGAL_DOCUMENT_LIST.every((doc) => legalStatus[doc.slug]);
 
   // Obtener el perfil (rol) del usuario autenticado
   useEffect(() => {
     // Esperar a que la sesión termine de resolverse (getSession() es async).
-    // Si este efecto decidiera "no hay perfil que buscar" mientras `loading`
-    // todavía es true, marcaría profileLoading=false para un `user` que en
-    // realidad todavía no se determinó (sigue en null momentáneamente) — y
-    // cuando la sesión existente resuelva un instante después, profile
-    // seguirá en null pero profileLoading ya habrá quedado en false, dejando
-    // una ventana de render donde ProtectedRoute cree que el perfil terminó
-    // de cargar sin rol y redirija de más (el flash de ConnectionsPage al
-    // admin en el F5).
     if (loading) return;
 
     if (!user?.id) {
       setProfile(null);
-      setProfileLoading(false);
+      setProfileFetchedFor(null);
       return;
     }
 
-    setProfileLoading(true);
     const fetchProfile = async () => {
       const { data } = await supabase
         .from('profiles')
@@ -52,7 +53,7 @@ export function AuthProvider({ children }) {
         .single();
 
       if (data) setProfile(data);
-      setProfileLoading(false);
+      setProfileFetchedFor(user.id);
     };
 
     fetchProfile();
@@ -68,11 +69,10 @@ export function AuthProvider({ children }) {
 
     if (!user?.id) {
       setLegalStatus({});
-      setLegalLoading(false);
+      setLegalStatusFetchedFor(null);
       return;
     }
 
-    setLegalLoading(true);
     const fetchLegalAcceptance = async () => {
       const { data } = await supabase
         .from('legal_acceptances')
@@ -88,7 +88,7 @@ export function AuthProvider({ children }) {
         status[doc.slug] = hasAcceptedCurrentVersion(row, doc.version);
       }
       setLegalStatus(status);
-      setLegalLoading(false);
+      setLegalStatusFetchedFor(user.id);
     };
 
     fetchLegalAcceptance();
